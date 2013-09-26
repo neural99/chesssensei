@@ -46,21 +46,21 @@ public class BoardPosition {
 		int x = -1;
 		int y = -1;
 		
-		String lower = algebraic.toLowerCase(Locale.US);
+		String lower = algebraic.toUpperCase(Locale.US);
 		String col = lower.substring(0, 1);
 		String row = lower.substring(1, 2);
 		
 		char first = col.charAt(0);
-		y = (int) first - 'a';
+		x = (int) first - 'A';
 		
-		if (y > 8 || y < 0) {
+		if (x > 7 || x < 0) {
 			throw new IllegalArgumentException("Illegal character in algebraic position " + col);
 		}
 		
 		first = row.charAt(0);
-		x = (int) first - '0';
+		y = 7 - ((int) first - '1');
 		
-		if (x > 8 || x < 0) {
+		if (y > 7 || y < 0) {
 			throw new IllegalArgumentException("Illegal character in algebraic position " + row);
 		}
 		
@@ -74,12 +74,17 @@ public class BoardPosition {
 	private static String getStringRepresentation(int x, int y) {
 		StringBuilder sb = new StringBuilder();
 		
-		char col = (char) ('A' + y);
-		char row = (char) ('1' + x);
+		char col = (char) ('A' + x);
+		char row = (char) ('1' + (7 - y));
 		sb.append(col);
 		sb.append(row);
 		
 		return sb.toString();
+	}
+	
+	public boolean insideBoard(Board b) {
+		return getX() >= 0 && getY() >= 0 &&
+			   getX() < b.getSize() && getY() < b.getSize();
 	}
 
 	@Override

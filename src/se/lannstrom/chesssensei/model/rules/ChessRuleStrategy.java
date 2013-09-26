@@ -16,8 +16,23 @@ import se.lannstrom.chesssensei.model.Board.ChessPiece;
  *
  */
 public class ChessRuleStrategy {
-	private HashMap<ChessPiece, ChessPieceStrategy> pieceStrategies = new HashMap<ChessPiece, ChessPieceStrategy>();   
+	private HashMap<ChessPiece, ChessPieceStrategy> pieceStrategies =
+			new HashMap<ChessPiece, ChessPieceStrategy>();
 	
+	public ChessRuleStrategy() {
+		setupStandard();
+	}
+	
+	/**
+	 * Setup standard rules of chess
+	 */
+	private void setupStandard() {
+		/* Rook */
+		RookStrategy rs = new RookStrategy();
+		register(ChessPiece.B_ROOK, rs);
+		register(ChessPiece.W_ROOK, rs);
+	}
+
 	public void doMove(Board b, ChessMove move) {
 		/* TODO: Check, en passant, checkmate, etc */
 
@@ -70,7 +85,150 @@ public class ChessRuleStrategy {
 		pieceStrategies.put(cp, s);
 	}
 	
-	private static class RookStrategy implements ChessPieceStrategy {
+	public static class BishopStrategy implements ChessPieceStrategy {
+		
+		public static class ChessDiagonal {
+			/* In-data */
+			BoardPosition start;
+			BoardPosition end;
+			
+			/* Out-data */
+			int vX; 
+			int vY;
+			
+			public ChessDiagonal(BoardPosition s, BoardPosition e) {
+				start = s;
+				end = e;
+			}
+		}
+		
+		@Override
+		public boolean isValid(Board b, ChessMove move) {
+			BoardPosition from = move.getFrom();
+			BoardPosition to = move.getTo();
+			
+			ChessDiagonal d = calcDiagonal(from, to);
+			if (d != null) {
+				return isEmptyDiagonal(d, b);
+			} else {
+				return false;
+			}
+		}
+
+		private boolean isEmptyDiagonal(ChessDiagonal d, Board b) {
+			BoardPosition bp = d.start;
+			
+			while (!bp.equals(d.end)) {
+				int nX = bp.getX() + d.vX;
+				int nY = bp.getY() + d.vY;
+				bp = new BoardPosition(nX, nY);
+				
+				if (!bp.insideBoard(b)) {
+					/* Reached the end of the board */
+					return true; 
+				}
+				
+				if (!b.isEmptyAt(bp)) {
+					return false;
+				}
+			}
+			
+			/* Reached end of diagonal */
+			return true;
+		}
+		
+		private ArrayList<ChessMove> enumDiag(ChessDiagonal d, Board b, ChessColor c) {
+			ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+			
+			BoardPosition bp = d.start;
+			
+			while (!bp.equals(d.end)) {
+				int nX = bp.getX() + d.vX;
+				int nY = bp.getY() + d.vY;
+				bp = new BoardPosition(nX, nY);
+				
+				if (!bp.insideBoard(b)) {
+					break;
+				}
+				
+				if (b.isEmptyAt(bp)) {
+					moves.add(new ChessMove(d.start, bp, c));
+				} else { 
+					break;
+				}
+			}
+			
+			return moves;
+		}
+		
+		private ArrayList<ChessDiagonal> getDiagonals(BoardPosition from, Board b) {
+			ArrayList<ChessDiagonal> diagonals = new ArrayList<ChessDiagonal>();
+			
+			int[] v = {-1, 1};
+			for (int i = 0; i < v.length; i++) {
+				for (int j = 0; j < v.length; j++) {
+					BoardPosition bp = new BoardPosition(from.getX() + v[i], 
+														 from.getY() + v[j]);
+					
+					if (bp.insideBoard(b) && b.isEmptyAt(bp)) {
+						ChessDiagonal d = calcDiagonal(from, bp);
+						if (d != null) {
+							extendDiagonal(d, b);
+							diagonals.add(d);
+						}
+					}
+				}
+			}
+			
+			return diagonals;
+		}
+
+		private void extendDiagonal(ChessDiagonal d, Board b) {
+			BoardPosition bp = d.start;
+
+			while (bp.insideBoard(b)) {
+				d.end = bp;
+				
+				int nX = bp.getX() + d.vX;
+				int nY = bp.getY() + d.vY;
+				bp = new BoardPosition(nX, nY);
+			}
+		}
+
+		private ChessDiagonal calcDiagonal(BoardPosition from, BoardPosition to) {
+			/* Safe-guard against division by zero */
+			if (from.equals(to))
+				return null;
+			
+			int diffX = to.getX() - from.getX();
+			int diffY = to.getY() - from.getY();
+			
+			if (Math.abs(diffX) == Math.abs(diffY)) {
+				ChessDiagonal cd = new ChessDiagonal(from, to);
+				cd.vX = diffX / Math.abs(diffX);
+				cd.vY = diffY / Math.abs(diffY);
+				return cd;
+			} else {
+				return null;
+			}
+		}
+
+		@Override
+		public List<ChessMove> getValid(Board b, BoardPosition from,
+				ChessColor color) {
+			ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+			
+			for (ChessDiagonal d : getDiagonals(from, b)) {
+				ArrayList<ChessMove> diagMoves = enumDiag(d, b, color);
+				moves.addAll(diagMoves);
+			}
+			
+			return moves;
+		}
+		
+	}
+	
+	public static class RookStrategy implements ChessPieceStrategy {
 
 		/*
 		 * Returns true if movement along the same rank or file and the squares 
@@ -80,15 +238,19 @@ public class ChessRuleStrategy {
 		 * @see se.lannstrom.chesssensei.model.rules.ChessPieceStrategy#isValid(se.lannstrom.chesssensei.model.Board, se.lannstrom.chesssensei.model.ChessMove)
 		 */
 		public boolean isValid(Board b, ChessMove move) {
-			int fromFile = move.getFrom().getY();
-			int fromRank = move.getFrom().getX();
-			int toFile = move.getTo().getY();
-			int toRank = move.getTo().getX();
+			int fromX = move.getFrom().getX();
+			int fromY = move.getFrom().getY();
+			int toX = move.getTo().getX();
+			int toY = move.getTo().getY();
 			
-			if (fromFile == toFile) {
-				return isEmptyFile(b, fromRank, fromFile, toRank);
-			} else if (fromRank == toRank) {
-				return isEmptyRank(b, fromRank, fromFile, toFile);
+			if (fromX == toX) {
+				int startY = Math.min(fromY, toY);
+				int endY = Math.max(fromY, toY);
+				return isEmptyFile(b, fromX, startY, endY);
+			} else if (fromY == toY) {
+				int startX = Math.min(fromX, toX);
+				int endX = Math.max(fromX, toX);
+				return isEmptyRank(b, fromY, startX, endX);
 			} else {
 				/* No diagonal movement allowed */
 				return false;
@@ -104,9 +266,9 @@ public class ChessRuleStrategy {
 		 * @param toFile
 		 * @return
 		 */
-		private boolean isEmptyRank(Board b, int rank, int fromFile, int toFile) {
+		private boolean isEmptyRank(Board b, int rank, int fromX, int toX) {
 			boolean empty = true;
-			for (int x = fromFile; x <= toFile; x++) {
+			for (int x = fromX + 1; x < toX; x++) {
 				empty = empty && b.isEmptyAt(x, rank);
 			}
 			return empty;
@@ -121,9 +283,9 @@ public class ChessRuleStrategy {
 		 * @param toRank
 		 * @return
 		 */
-		private boolean isEmptyFile(Board b, int file, int fromRank, int toRank) {
+		private boolean isEmptyFile(Board b, int file, int startY, int endY) {
 			boolean empty = true;
-			for (int y = fromRank; y <= toRank; y++) {
+			for (int y = startY + 1; y < endY; y++) {
 				empty = empty && b.isEmptyAt(file, y);
 			}
 			return empty;
