@@ -8,7 +8,7 @@ import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
-import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy.BishopStrategy;
+import se.lannstrom.chesssensei.model.rules.BishopStrategy;
 import se.lannstrom.chesssensei.model.util.FENParser;
 import junit.framework.TestCase;
 
@@ -89,6 +89,8 @@ public class BishopStrategyTest extends TestCase {
 		assertFalse(moves3.contains(new ChessMove(b1, new BoardPosition("A1"), ChessColor.WHITE)));
 		assertFalse(moves3.contains(new ChessMove(b1, new BoardPosition("B1"), ChessColor.WHITE)));
 		
+		List<ChessMove> moves4 = bishopStrategy.getValid(startingBoard, new BoardPosition("C1"), ChessColor.BLACK);
+		assertTrue(moves4.size() == 2);
 	}
 	
 }

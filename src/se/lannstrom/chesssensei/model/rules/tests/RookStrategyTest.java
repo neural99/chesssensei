@@ -8,7 +8,7 @@ import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
-import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy.RookStrategy;
+import se.lannstrom.chesssensei.model.rules.RookStrategy;
 import se.lannstrom.chesssensei.model.util.FENParser;
 import junit.framework.TestCase;
 
@@ -71,11 +71,11 @@ public class RookStrategyTest extends TestCase {
 		facit1.add(new ChessMove(a1, p("A5"), ChessColor.WHITE));
 		facit1.add(new ChessMove(a1, p("A6"), ChessColor.WHITE));
 		facit1.add(new ChessMove(a1, p("A7"), ChessColor.WHITE));
-		facit1.add(new ChessMove(a1, p("A8"), ChessColor.WHITE));
+		facit1.add(new ChessMove(a1, p("A8"), ChessColor.WHITE)); /* Capture move */
 		List<ChessMove> moves1 = rookStrategy.getValid(testBoard1, a1, ChessColor.WHITE);
 		assertTrue(moves1.containsAll(facit1) && facit1.containsAll(moves1));
 		
-		List<ChessMove> moves2 = rookStrategy.getValid(startingBoard, a1, ChessColor.WHITE);
+		List<ChessMove> moves2 = rookStrategy.getValid(startingBoard, a1, ChessColor.BLACK);
 		assertTrue(moves2.size() == 2);
 	} 
 

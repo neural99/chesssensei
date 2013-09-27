@@ -64,6 +64,18 @@ public class Board {
 			default: return null;
 			}
 		}
+		
+		/**
+		 * Return the other color
+		 * @param c
+		 * @return
+		 */
+		public static ChessColor getOpponent(ChessColor c) {
+			if (c == ChessColor.BLACK)
+				return ChessColor.WHITE;
+			else
+				return ChessColor.BLACK;
+		}
 	}
 	
 	public static enum Castle {
@@ -312,6 +324,37 @@ public class Board {
 	
 	public boolean isEmptyAt(BoardPosition bp) {
 		return getPieceAt(bp) == null;
+	}
+
+	/**
+	 * Returns true if the chess piece at bp is an chess piece of 
+	 * the opponent to ChessColor c.
+	 * 
+	 * @param bp
+	 * @param c
+	 * @return
+	 */
+	public boolean isOpponentAt(BoardPosition bp, ChessColor c) {
+		ChessPiece cp = getPieceAt(bp);
+		if (cp != null) {
+			return cp.isColor(ChessColor.getOpponent(c));
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean isOpponentAt(int x, int y, ChessColor c) {
+		BoardPosition bp = new BoardPosition(x, y);
+		return isOpponentAt(bp, c);
+	}
+
+	public boolean isEmptyOrOpponent(BoardPosition bp, ChessColor c) {
+		return isEmptyAt(bp) || isOpponentAt(bp, c); 
+	}
+	
+	public boolean isEmptyOrOpponent(int x, int y, ChessColor c) {
+		BoardPosition bp = new BoardPosition(x, y);
+		return isEmptyAt(bp) || isOpponentAt(bp, c); 
 	}
 	
 }
