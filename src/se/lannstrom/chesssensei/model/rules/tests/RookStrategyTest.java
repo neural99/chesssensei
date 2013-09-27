@@ -15,8 +15,6 @@ import junit.framework.TestCase;
 public class RookStrategyTest extends TestCase {
 
 	private Board testBoard1;
-	private Board testBoard2;
-	private Board centerBoard;
 	private FENParser parser;
 	private RookStrategy rookStrategy;
 	private Board startingBoard;
@@ -28,8 +26,6 @@ public class RookStrategyTest extends TestCase {
 		
 		parser = new FENParser();
 		testBoard1 = parser.parse("r7/8/8/8/8/8/8/8 w KQkq - 0 1", new PrintWriter(System.out));
-		testBoard2 = parser.parse("1r6/8/8/8/8/8/8/8 w KQkq - 0 1", new PrintWriter(System.out));
-		centerBoard = parser.parse("8/8/8/4r3/8/8/8/8 w KQkq - 0 1", new PrintWriter(System.out));
 		
 		rookStrategy = new RookStrategy();
 	}

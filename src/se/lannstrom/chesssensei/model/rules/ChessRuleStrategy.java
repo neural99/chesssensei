@@ -28,9 +28,6 @@ public class ChessRuleStrategy {
 	 */
 	private void setupStandard() {
 		/* Rook */
-		RookStrategy rs = new RookStrategy();
-		register(ChessPiece.B_ROOK, rs);
-		register(ChessPiece.W_ROOK, rs);
 	}
 
 	public void doMove(Board b, ChessMove move) {
