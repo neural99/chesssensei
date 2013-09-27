@@ -59,10 +59,12 @@ public class PawnStrategyTest extends TestCase {
 	public void testGetValid() {
 		List<ChessMove> moves1 = strategy.getValid(startingBoard, a2, ChessColor.WHITE);
 		assertTrue(moves1.size() == 2);
+		List<ChessMove> moves4 = strategy.getValid(startingBoard, a3, ChessColor.WHITE);
+		assertTrue(moves4.size() == 1);
 		List<ChessMove> moves2 = strategy.getValid(testBoard1, a1, ChessColor.WHITE);
 		assertTrue(moves2.size() == 1);
 		List<ChessMove> moves3 = strategy.getValid(testBoard2, a1, ChessColor.WHITE);
-		assertTrue(moves3.size() == 3);
+		assertTrue(moves3.size() == 2);
 	}
 
 }

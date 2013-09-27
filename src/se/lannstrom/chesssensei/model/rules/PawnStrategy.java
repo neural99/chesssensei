@@ -24,10 +24,13 @@ public class PawnStrategy implements ChessPieceStrategy {
 		BoardPosition enPassantTarget = b.getEnPassantTarget();
 
 		int orient = 0;
+		int pawnRank = 0;
 		if (color == ChessColor.WHITE) {
 			orient = -1;
+			pawnRank = b.getSize() - 2;
 		} else {
 			orient = 1;
+			pawnRank = 1;
 		}
 		
 		BoardPosition singleForward = new BoardPosition(from.getX(), from.getY() + orient * 1);
@@ -37,7 +40,8 @@ public class PawnStrategy implements ChessPieceStrategy {
 		if (singleForward.insideBoard(b) && b.isEmptyAt(singleForward)) {
 			moves.add(new ChessMove(from, singleForward, color));
 			
-			if (doubleForward.insideBoard(b) && b.isEmptyAt(doubleForward)) {
+			/* Allow double step move on first move */
+			if (from.getY() == pawnRank && b.isEmptyAt(doubleForward)) {
 				moves.add(new ChessMove(from, doubleForward, color));
 			}
 		}
