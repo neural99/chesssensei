@@ -1,4 +1,4 @@
-package se.lannstrom.chesssensei.model.rules;
+package se.lannstrom.chesssensei.model.rules.tests;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -7,6 +7,7 @@ import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
+import se.lannstrom.chesssensei.model.rules.PawnStrategy;
 import se.lannstrom.chesssensei.model.util.FENParser;
 import junit.framework.TestCase;
 
