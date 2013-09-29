@@ -26,14 +26,16 @@ public class KnightStrategy implements ChessPieceStrategy {
 
 		int[] u = {-1, 1};
 		int[] v = {-2, 2};
-		
-		for (int i = 0; i < u.length; i++) {
-			for (int j = 0; j < v.length; j++) {
-				int x = from.getX() + u[i];
-				int y = from.getY() + v[j];
-				BoardPosition bp = new BoardPosition(x, y);
-				if (bp.insideBoard(b) && b.isEmptyOrOpponent(bp, color)) {
-					moves.add(new ChessMove(from, bp, color));
+
+		for (int k = 0; k < 2; k++) {
+			for (int i = 0; i < u.length; i++) {
+				for (int j = 0; j < v.length; j++) {
+					int x = from.getX() + (k == 0 ? u[i] : v[i]);
+					int y = from.getY() + (k == 0 ? v[j] : u[j]);
+					BoardPosition bp = new BoardPosition(x, y);
+					if (bp.insideBoard(b) && b.isEmptyOrOpponent(bp, color)) {
+						moves.add(new ChessMove(from, bp, color));
+					}
 				}
 			}
 		}
