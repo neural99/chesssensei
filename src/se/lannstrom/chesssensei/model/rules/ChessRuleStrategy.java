@@ -28,28 +28,69 @@ public class ChessRuleStrategy {
 	 */
 	private void setupStandard() {
 		/* Rook */
-	}
-
-	public void doMove(Board b, ChessMove move) {
-		/* TODO: Check, en passant, checkmate, etc */
-
-		if (isValidMove(b, move)) {
-			ChessPiece cp = b.getPieceAt(move.getFrom());
-			b.setPieceAt(move.getTo(), cp);
-			b.setPieceAt(move.getFrom(), null);
-			b.toggleActive();
-		}
+		register(ChessPiece.W_ROOK, new RookStrategy());
+		register(ChessPiece.B_ROOK, new RookStrategy());
+		
+		/* Bishop */
+		register(ChessPiece.W_BISHOP, new BishopStrategy());
+		register(ChessPiece.B_BISHOP, new BishopStrategy());
+		
+		/* Knight */
+		register(ChessPiece.W_KNIGHT, new KnightStrategy());
+		register(ChessPiece.B_KNIGHT, new KnightStrategy());
+		
+		/* Queen */
+		register(ChessPiece.W_QUEEN, new QueenStrategy());
+		register(ChessPiece.B_QUEEN, new QueenStrategy());
+		
+		/* King */
+		register(ChessPiece.W_KING, new KingStrategy());
+		register(ChessPiece.B_KING, new KingStrategy());
+		
+		/* Pawn */
+		register(ChessPiece.W_PAWN, new PawnStrategy());
+		register(ChessPiece.B_PAWN, new PawnStrategy());
 	}
 	
-	public boolean isValidMove(Board b, ChessMove move) {
-		/* TODO: Check, en passant, checkmate, etc */
+	public List<ChessMove> getValidMoves(Board b, ChessColor c) {
+		List<ChessMove> allMoves = getAllMoves(b, c);
+		List<ChessMove> validMoves = new ArrayList<ChessMove>();
+		for (ChessMove m : allMoves) {
+			if (isValidMove(b, m)) {
+				validMoves.add(m);
+			}
+		}
+		return validMoves;
+	}
+	
+	public void doMove(Board b, ChessMove move) {
 		
-		if (b.getActive() == move.getColor()) {
-			ChessPiece cp = b.getPieceAt(move.getFrom());
+	}
+
+	private void executeMove(Board b, ChessMove move) {
+		/* TODO: Update all status in board */
+		ChessPiece cp = b.getPieceAt(move.getFrom());
+		b.setPieceAt(move.getTo(), cp);
+		b.setPieceAt(move.getFrom(), null);
+		b.toggleActive();
+	}
+	
+	private boolean isValidMove(Board b, ChessMove move) {
+		if (b.getActive() == move.getColor() && 
+			!move.getFrom().equals(move.getTo())) {
 			
-			ChessPieceStrategy cps = pieceStrategies.get(cp);
-			return cps.isValid(b, move);
-			
+			/* Check if activeColor is in check after move */
+			Board copy = new Board(b);
+			executeMove(copy, move);
+			List<ChessMove> opponentMoves = 
+					getAllMoves(copy, ChessColor.getOpponent(move.getColor()));
+
+			if (containsKingCapture(copy, move.getColor(), opponentMoves)) {
+				return false;
+			} else {
+				return true;
+			}
+
 		} else {
 			throw new IllegalArgumentException("ChessMove is not valid. Wrong color is active." +
 											   "In Board object active color is: " + b.getActive() + 
@@ -57,13 +98,25 @@ public class ChessRuleStrategy {
 		}
 	}
 	
-	public List<ChessMove> getValidMoves(Board b, BoardPosition from, ChessColor c) {
+	private boolean containsKingCapture(Board b, ChessColor c, List<ChessMove> opponentMoves) {
+		BoardPosition kingPos = b.findKing(c);
+		if (kingPos != null) {
+			for (ChessMove move : opponentMoves) {
+				if (move.getTo().equals(kingPos)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private List<ChessMove> getMoves(Board b, BoardPosition from, ChessColor c) {
 		ChessPiece cp = b.getPieceAt(from);
 		ChessPieceStrategy cps = pieceStrategies.get(cp);
 		return cps.getValid(b, from, c);
 	}
 	
-	public List<ChessMove> getValidMoves(Board b, ChessColor c) {
+	public List<ChessMove> getAllMoves(Board b, ChessColor c) {
 		ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
 		
 		for (int i = 0; i < b.getSize(); i++) {
@@ -71,7 +124,7 @@ public class ChessRuleStrategy {
 				BoardPosition from = new BoardPosition(i, j);
 				ChessPiece cp = b.getPieceAt(from);
 				if (cp.isColor(c)) {
-					moves.addAll(getValidMoves(b, from, c));
+					moves.addAll(getMoves(b, from, c));
 				}
 			}
 		}

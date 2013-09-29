@@ -101,6 +101,23 @@ public class Board {
 	private int halfMoveCount;
 	private int fullMoveCount;
 	
+	public Board(Board other) {
+		size = other.size;
+		/* Copy board */
+		board = new ChessPiece[8][8];
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				board[i][j] = other.board[i][j];
+			}
+		}
+		active = other.active;
+		availableCastle = new ArrayList<Board.Castle>();
+		availableCastle.addAll(other.availableCastle);
+		enPassantTarget = other.enPassantTarget;
+		halfMoveCount = other.halfMoveCount;
+		fullMoveCount = other.fullMoveCount;
+	}
+	
 	public Board() {
 		board = new ChessPiece[8][8];
 	}
@@ -355,6 +372,23 @@ public class Board {
 	public boolean isEmptyOrOpponent(int x, int y, ChessColor c) {
 		BoardPosition bp = new BoardPosition(x, y);
 		return isEmptyAt(bp) || isOpponentAt(bp, c); 
+	}
+
+	public BoardPosition findKing(ChessColor c) {
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				if (c == ChessColor.WHITE) {
+					if (board[i][j] == ChessPiece.W_KING) {
+						return new BoardPosition(i, j);
+					}
+				} else {
+					if (board[i][j] == ChessPiece.B_KING) {
+						return new BoardPosition(i, j);
+					}
+				}
+			}
+		}
+		return null;
 	}
 	
 }
