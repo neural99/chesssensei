@@ -393,6 +393,15 @@ public class Board {
 		BoardPosition bp = new BoardPosition(x, y);
 		return isEmptyAt(bp) || isOpponentAt(bp, c); 
 	}
+	
+	public boolean isMineAt(int x, int y, ChessColor c) {
+		ChessPiece cp = getPieceAt(x, y);
+		if (cp != null) {
+			return cp.isColor(c);
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Find the BoardPosition of the king with color c
@@ -444,5 +453,5 @@ public class Board {
 			return getPieceAt(bp) == ChessPiece.B_KING;
 			
 	}
-	
+
 }

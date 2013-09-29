@@ -2,8 +2,13 @@ package se.lannstrom.chesssensei;
 
 import java.util.HashMap;
 
+import se.lannstrom.chesssensei.SelectionManager.SelectionState;
 import se.lannstrom.chesssensei.model.Board;
+import se.lannstrom.chesssensei.model.Board.ChessColor;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
+import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy;
+import se.lannstrom.chesssensei.model.BoardPosition;
+import se.lannstrom.chesssensei.model.ChessMove;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,14 +38,17 @@ public class BoardView extends View {
 	private Paint lightPaint;
 	private Rect rect;
 	private int squareDiag;
-
-	private int selectedY = -1;
-	private int selectedX = -1;
-
-	private Paint selectedPaint;
+	
+	private SelectionManager selectionManager;
+	
+	private Paint fromSelectedPaint;
+	
+	private Paint movesPaint;
 	
 	private HashMap<ChessPiece, Bitmap> bigBitmaps = new HashMap<Board.ChessPiece, Bitmap>();
 	private HashMap<ChessPiece, Bitmap> scaledBitmaps = new HashMap<Board.ChessPiece, Bitmap>();
+
+	private ChessRuleStrategy chessRuleStrategy;
 
 	public BoardView(Context context, AttributeSet as) {
 		super(context, as);
@@ -49,16 +57,40 @@ public class BoardView extends View {
 		darkPaint.setColor(Color.GREEN);
 		lightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		lightPaint.setColor(Color.GRAY);
-		selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		selectedPaint.setColor(Color.RED);
+		fromSelectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		fromSelectedPaint.setColor(Color.RED);
+		movesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		movesPaint.setColor(Color.BLUE);
 		
 		rect = new Rect();
-		
 		board = Board.createStartingBoard();
+		
+		selectionManager = new SelectionManager(ChessColor.WHITE, board);
+		selectionManager.setDoneCallback(new SelectionDoneCallback() {
+			
+			@Override
+			public void selectionDone() {
+				doMove();
+			}
+		});
+		selectionManager.setSelectionState(SelectionState.FROM);
+		
+		chessRuleStrategy = new ChessRuleStrategy();
 		
 		loadChessPieceImages();
 	}
-	
+
+
+	protected void doMove() {
+		ChessMove move = selectionManager.buildMove();
+		chessRuleStrategy.doMove(board, move);
+		selectionManager.reset();
+		selectionManager.setColor(board.getActive());
+		
+		invalidate();
+	}
+
+
 	private void loadChessPieceImages() {
 		Bitmap tmp = null;
 		
@@ -108,8 +140,13 @@ public class BoardView extends View {
 	}
 	
 	public void tapped(MotionEvent e) {
-	   selectedX = (int) (getRelativeX(e) / squareDiag);
-	   selectedY = (int) (getRelativeY(e) / squareDiag);
+	   int selectedX = (int) (getRelativeX(e) / squareDiag);
+	   int selectedY = (int) (getRelativeY(e) / squareDiag);
+	   if (selectedX > 7) selectedX = 7;
+	   if (selectedY > 7) selectedY = 7;
+	   
+	   selectionManager.select(selectedX, selectedY);
+	   
 	   invalidate();
 	}
 
@@ -160,8 +197,13 @@ public class BoardView extends View {
 		rect.bottom = rect.top + squareDiag;
 		
 		Paint p = null;
-		if (j == selectedY && i == selectedX) {
-			p = selectedPaint;
+		BoardPosition from = selectionManager.getFrom();
+		if (from != null && 
+				from.getX() == i && 
+				from.getY() == j) {
+			p = fromSelectedPaint;
+		} else if (selectionManager.isValidMove(i, j)) {
+			p = movesPaint;
 		} else if ((j + i) % 2 == 0) {
 			p = darkPaint;
 		} else {
