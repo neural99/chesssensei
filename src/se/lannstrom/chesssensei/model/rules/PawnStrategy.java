@@ -35,7 +35,8 @@ public class PawnStrategy implements ChessPieceStrategy {
 		
 		BoardPosition singleForward = new BoardPosition(from.getX(), from.getY() + orient * 1);
 		BoardPosition doubleForward = new BoardPosition(from.getX(), from.getY() + orient * 2);
-		BoardPosition diagForward = new BoardPosition(from.getX() + 1, from.getY() + orient * 1);
+		BoardPosition rightDiagForward = new BoardPosition(from.getX() + 1, from.getY() + orient * 1);
+		BoardPosition leftDiagForward = new BoardPosition(from.getX() - 1, from.getY() + orient * 1);
 		
 		if (singleForward.insideBoard(b) && b.isEmptyAt(singleForward)) {
 			moves.add(new ChessMove(from, singleForward, color));
@@ -46,9 +47,14 @@ public class PawnStrategy implements ChessPieceStrategy {
 			}
 		}
 		
-		if (diagForward.insideBoard(b) && 
-				(b.isOpponentAt(diagForward, color) || diagForward.equals(enPassantTarget))) {
-			moves.add(new ChessMove(from, diagForward, color));
+		if (rightDiagForward.insideBoard(b) && 
+				(b.isOpponentAt(rightDiagForward, color) || rightDiagForward.equals(enPassantTarget))) {
+			moves.add(new ChessMove(from, rightDiagForward, color));
+		}
+		
+		if (leftDiagForward.insideBoard(b) && 
+				(b.isOpponentAt(leftDiagForward, color) || leftDiagForward.equals(enPassantTarget))) {
+			moves.add(new ChessMove(from, leftDiagForward, color));
 		}
 		
 		return moves;
