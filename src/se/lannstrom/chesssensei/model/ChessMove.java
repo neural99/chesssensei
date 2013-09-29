@@ -1,5 +1,6 @@
 package se.lannstrom.chesssensei.model;
 
+import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
 
 /**
@@ -10,14 +11,29 @@ import se.lannstrom.chesssensei.model.Board.ChessColor;
  *
  */
 public class ChessMove {
+	/* Ordinary movement */
 	private BoardPosition from;
 	private BoardPosition to;
+	/* Or castling */
+	private Castle castling = Castle.NONE;
+	
 	private ChessColor color;
 	
 	public ChessMove(ChessMove other) {
 		this.from = other.from;
 		this.to = other.to;
 		this.color = other.color;
+	}
+	
+	public ChessMove(Castle c) {
+		castling = c;
+		if (castling == Castle.W_KINGSIDE ||
+			castling == Castle.W_QUEENSIDE) {
+			color = ChessColor.WHITE; 
+		} else if (castling == Castle.B_KINGSIDE || 
+				   castling == Castle.B_QUEENSIDE) {
+			color = ChessColor.BLACK;
+		}
 	}
 	
 	public ChessMove(BoardPosition f, BoardPosition t,
@@ -39,16 +55,39 @@ public class ChessMove {
 		return color;
 	}
 	
+	public Castle getCastling() {
+		return castling;
+	}
+
+	public void setCastling(Castle castling) {
+		this.castling = castling;
+	}
+	
+	public boolean isCastle() {
+		return castling != Castle.NONE;
+	} 
+	
 	@Override
 	public String toString() {
-		return "From: " + from.toString() +
-			  " To: " + to.toString();
+		if (isCastle()) {
+			if (castling == Castle.W_KINGSIDE || 
+				castling == Castle.B_KINGSIDE) { 
+				return "0-0";
+			} else { 
+				return "0-0-0";
+			}	
+		} else {
+			return "From: " + from.toString() +
+				  " To: " + to.toString();
+		}
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result
+				+ ((castling == null) ? 0 : castling.hashCode());
 		result = prime * result + ((color == null) ? 0 : color.hashCode());
 		result = prime * result + ((from == null) ? 0 : from.hashCode());
 		result = prime * result + ((to == null) ? 0 : to.hashCode());
@@ -64,6 +103,8 @@ public class ChessMove {
 		if (getClass() != obj.getClass())
 			return false;
 		ChessMove other = (ChessMove) obj;
+		if (castling != other.castling)
+			return false;
 		if (color != other.color)
 			return false;
 		if (from == null) {

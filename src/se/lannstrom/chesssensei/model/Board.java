@@ -95,6 +95,14 @@ public class Board {
 			default: return null;
 			}
 		}
+
+		public static boolean isKingSide(Castle castling) {
+			return castling == B_KINGSIDE || castling == W_KINGSIDE;
+		}
+		
+		public static boolean isQueenSide(Castle castling) {
+			return castling == B_QUEENSIDE || castling == W_QUEENSIDE;
+		}
 	}
 	
 	private int size = 8;
@@ -178,6 +186,10 @@ public class Board {
 	
 	public void addAvailableCastle(Castle c) {
 		availableCastle.add(c);
+	}
+	
+	public void removeAvailableCastle(Castle c) {
+		availableCastle.remove(c);
 	}
 
 	public BoardPosition getEnPassantTarget() {
@@ -346,6 +358,10 @@ public class Board {
 	public boolean isEmptyAt(BoardPosition bp) {
 		return getPieceAt(bp) == null;
 	}
+	
+	public boolean isEmptyAt(String bp) {
+		return getPieceAt(new BoardPosition(bp)) == null;
+	}
 
 	/**
 	 * Returns true if the chess piece at bp is an chess piece of 
@@ -378,6 +394,12 @@ public class Board {
 		return isEmptyAt(bp) || isOpponentAt(bp, c); 
 	}
 
+	/**
+	 * Find the BoardPosition of the king with color c
+	 * 
+	 * @param c
+	 * @return
+	 */
 	public BoardPosition findKing(ChessColor c) {
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
@@ -393,6 +415,34 @@ public class Board {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Replace the piece at to with the piece at from, i.e. move the
+	 * piece.
+	 * 
+	 * @param from
+	 * @param to
+	 */
+	public void movePiece(BoardPosition from, BoardPosition to) {
+		ChessPiece cp = getPieceAt(from);
+		setPieceAt(to, cp);
+		setPieceAt(from, null);
+	}
+
+	public static BoardPosition getStartingKingPos(ChessColor c) {
+		if (c == ChessColor.WHITE)
+			return new BoardPosition("E1");
+		else
+			return new BoardPosition("E8");
+	}
+
+	public boolean isKingAt(BoardPosition bp, ChessColor c) {
+		if (c == ChessColor.WHITE)
+			return getPieceAt(bp) == ChessPiece.W_KING;
+		else
+			return getPieceAt(bp) == ChessPiece.B_KING;
+			
 	}
 	
 }

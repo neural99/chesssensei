@@ -1,4 +1,4 @@
-package se.lannstrom.chesssensei.model.rules.test;
+package se.lannstrom.chesssensei.model.rules.tests;
 
 import java.util.List;
 
@@ -23,6 +23,8 @@ public class ChessRuleStrategyTest extends TestCase {
 
 	BoardPosition a2 = new BoardPosition("A2");
 	BoardPosition a7 = new BoardPosition("A7");
+	BoardPosition a4 = new BoardPosition("A4");
+	BoardPosition a6 = new BoardPosition("A6");
 	
 	public void testGetValidMoves() {
 		List<ChessMove> moves1;
@@ -37,7 +39,14 @@ public class ChessRuleStrategyTest extends TestCase {
 	}
 
 	public void testDoMove() {
-		fail("Not yet implemented");
+		startingBoard = Board.createStartingBoard();
+		System.out.println(startingBoard);
+		ChessMove move1 = new ChessMove(a2, a4, ChessColor.WHITE);
+		chessRuleStrategy.doMove(startingBoard, move1);
+		System.out.println(startingBoard);
+		ChessMove move2 = new ChessMove(a7, a6, ChessColor.BLACK);
+		chessRuleStrategy.doMove(startingBoard, move2);
+		System.out.println(startingBoard);
 	}
 
 }
