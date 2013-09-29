@@ -52,6 +52,10 @@ public class Board {
 				return name().startsWith("W");
 			}
 		}
+
+		public boolean isPawn() {
+			return (this == ChessPiece.B_PAWN || this == ChessPiece.W_PAWN);
+		}
 	}
 	
 	public static enum ChessColor {

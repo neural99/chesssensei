@@ -52,10 +52,10 @@ public class ChessRuleStrategy {
 		register(ChessPiece.B_PAWN, new PawnStrategy());
 	}
 	
-	public List<ChessMove> getValidMoves(Board b, ChessColor c) {
-		List<ChessMove> allMoves = getAllMoves(b, c);
-		List<ChessMove> validMoves = new ArrayList<ChessMove>();
-		for (ChessMove m : allMoves) {
+	public List<ChessMove> getValidMoves(Board b, BoardPosition from, ChessColor c) {
+		ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+		List<ChessMove> moves = getMoves(b, from, c);
+		for (ChessMove m : moves) {
 			if (isValidMove(b, m)) {
 				validMoves.add(m);
 			}
@@ -64,17 +64,42 @@ public class ChessRuleStrategy {
 	}
 	
 	public void doMove(Board b, ChessMove move) {
-		
+		if (isValidMove(b, move)) {
+			executeMove(b, move);
+		}
 	}
 
 	private void executeMove(Board b, ChessMove move) {
 		/* TODO: Update all status in board */
 		ChessPiece cp = b.getPieceAt(move.getFrom());
+		if (cp != null && cp.isPawn()) {
+			updateEnPassantTarget(b, move);
+		}
+		
 		b.setPieceAt(move.getTo(), cp);
 		b.setPieceAt(move.getFrom(), null);
+		
 		b.toggleActive();
 	}
 	
+	private void updateEnPassantTarget(Board b, ChessMove move) {
+		BoardPosition from = move.getFrom();
+		BoardPosition to = move.getTo();
+		ChessColor color = move.getColor();
+		
+		boolean isDoubleStep = Math.abs(to.getY() - from.getY()) == 2;
+		if (isDoubleStep) {
+			int dir = 0;
+			if (color == ChessColor.WHITE) {
+				dir = -1;
+			} else {
+				dir = 1;
+			}
+			BoardPosition singleStep = new BoardPosition(from.getX(), from.getY() + dir);
+			b.setEnPassantTarget(singleStep);
+		}
+	}
+
 	private boolean isValidMove(Board b, ChessMove move) {
 		if (b.getActive() == move.getColor() && 
 			!move.getFrom().equals(move.getTo())) {
@@ -123,7 +148,7 @@ public class ChessRuleStrategy {
 			for (int j = 0; j < b.getSize(); j++) {
 				BoardPosition from = new BoardPosition(i, j);
 				ChessPiece cp = b.getPieceAt(from);
-				if (cp.isColor(c)) {
+				if (cp != null && cp.isColor(c)) {
 					moves.addAll(getMoves(b, from, c));
 				}
 			}
