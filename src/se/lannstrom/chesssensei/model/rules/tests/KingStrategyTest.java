@@ -24,6 +24,7 @@ public class KingStrategyTest extends TestCase {
 	BoardPosition a7 = new BoardPosition("A7");
 	BoardPosition a8 = new BoardPosition("A8");
 	BoardPosition b1 = new BoardPosition("B1");
+	BoardPosition d4 = new BoardPosition("D4");
 
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -52,13 +53,16 @@ public class KingStrategyTest extends TestCase {
 		assertTrue(moves1.size() == 3);
 		assertFalse(moves1.contains(new ChessMove(a1, a1, ChessColor.BLACK)));
 		List<ChessMove> moves2 = kingStrategy.getValid(startingBoard, a2, ChessColor.BLACK);
-		assertTrue(moves2.size() == 4);
+		assertTrue(moves2.size() == 5);
 		
 		List<ChessMove> moves3 = kingStrategy.getValid(testBoard2, a7, ChessColor.WHITE);
-		assertTrue(moves3.size() == 4);
+		assertTrue(moves3.size() == 5);
 		assertTrue(moves3.contains(new ChessMove(a7, a8, ChessColor.WHITE)));
 		List<ChessMove> moves4 = kingStrategy.getValid(testBoard2, a7, ChessColor.BLACK);
-		assertTrue(moves4.size() == 3);
+		assertTrue(moves4.size() == 4);
+		
+		List<ChessMove> moves5 = kingStrategy.getValid(testBoard1, d4, ChessColor.WHITE);
+		assertTrue(moves5.size() == 8);
 	}
 
 }

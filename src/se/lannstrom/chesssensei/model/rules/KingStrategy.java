@@ -36,7 +36,7 @@ public class KingStrategy implements ChessPieceStrategy {
 		for (int i = 0; i < v.length; i++) {
 			for (int j = 0; j < v.length; j++) {
 				if (i == 1 && j == 1)
-					break;
+					continue;
 				
 				BoardPosition bp = new BoardPosition(from.getX() + v[i],
 													 from.getY() + v[j]);
