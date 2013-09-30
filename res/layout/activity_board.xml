@@ -10,11 +10,12 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/give_up_button"
+            android:id="@+id/flip_board_button"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/give_up_button_text" />
+            android:text="@string/flip_board_button_text"
+            android:onClick="flipBoard" />
 
         <TextView
             android:id="@+id/problem_title"
@@ -29,6 +30,7 @@
     </LinearLayout>
     
     <se.lannstrom.chesssensei.BoardView 
+        android:id="@+id/board_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"></se.lannstrom.chesssensei.BoardView>
 

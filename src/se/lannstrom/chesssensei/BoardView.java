@@ -38,6 +38,7 @@ public class BoardView extends View {
 	private Paint lightPaint;
 	private Rect rect;
 	private int squareDiag;
+	private boolean inverted;
 	
 	private SelectionManager selectionManager;
 	
@@ -49,6 +50,7 @@ public class BoardView extends View {
 	private HashMap<ChessPiece, Bitmap> scaledBitmaps = new HashMap<Board.ChessPiece, Bitmap>();
 
 	private ChessRuleStrategy chessRuleStrategy;
+
 
 	public BoardView(Context context, AttributeSet as) {
 		super(context, as);
@@ -145,6 +147,10 @@ public class BoardView extends View {
 	   if (selectedX > 7) selectedX = 7;
 	   if (selectedY > 7) selectedY = 7;
 	   
+	   if (inverted) {
+		   selectedY = 7 - selectedY;
+	   }
+	   
 	   selectionManager.select(selectedX, selectedY);
 	   
 	   invalidate();
@@ -196,6 +202,10 @@ public class BoardView extends View {
 		rect.top = getTop() + j * squareDiag;
 		rect.bottom = rect.top + squareDiag;
 		
+		if (inverted) {
+			j = 7 - j;
+		}
+		
 		Paint p = null;
 		BoardPosition from = selectionManager.getFrom();
 		if (from != null && 
@@ -212,7 +222,12 @@ public class BoardView extends View {
 		
 		canvas.drawRect(rect, p);
 		
-		ChessPiece cp = board.getPieceAt(i, j);
+		ChessPiece cp = null;
+		if (inverted) {
+			cp = board.getPieceAt(i, j);
+		} else {
+			cp = board.getPieceAt(i, j);
+		}
 		if (cp != null) {
 			Bitmap map = scaledBitmaps.get(cp);
 			if (map != null) {
@@ -227,6 +242,16 @@ public class BoardView extends View {
 	public boolean onTouchEvent(MotionEvent event) {
 		boolean result = detector.onTouchEvent(event);
 		return result;
+	}
+
+
+	public void flip() {
+		if (inverted) {
+			inverted = false;
+		} else {
+			inverted = true;
+		}
+		invalidate();
 	}
 
 }

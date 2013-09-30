@@ -2,7 +2,7 @@
 <resources>
 	
     <string name="app_name">ChessSensei</string>
-    <string name="give_up_button_text">Give up</string>
+    <string name="flip_board_button_text">Flip Board</string>
     <string name="dummy_content">Dummy label</string>
     <string name="action_about">About</string>
     <string name="action_help">Help</string>

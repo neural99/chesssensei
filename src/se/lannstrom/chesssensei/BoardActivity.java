@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 public class BoardActivity extends Activity {
 
@@ -38,6 +40,12 @@ public class BoardActivity extends Activity {
 						  .setTitle("About")
 						  .setNeutralButton("OK", null);
 		alertDialogBuilder.create().show();
+	}
+	
+	public void flipBoard(View view) {
+		Log.d("Chess","In flipboard");
+		BoardView bv = (BoardView) findViewById(R.id.board_view);
+		bv.flip();
 	}
 	
 }
