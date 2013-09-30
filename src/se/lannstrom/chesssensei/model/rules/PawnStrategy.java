@@ -21,17 +21,8 @@ public class PawnStrategy implements ChessPieceStrategy {
 			ChessColor color) {
 		ArrayList<ChessMove> moves = new ArrayList<ChessMove>(); 
 		
-		BoardPosition enPassantTarget = b.getEnPassantTarget();
-
-		int orient = 0;
-		int pawnRank = 0;
-		if (color == ChessColor.WHITE) {
-			orient = -1;
-			pawnRank = b.getSize() - 2;
-		} else {
-			orient = 1;
-			pawnRank = 1;
-		}
+		int orient = getOrient(color);
+		int pawnRank = getPawnRank(b, color);
 		
 		BoardPosition singleForward = new BoardPosition(from.getX(), from.getY() + orient * 1);
 		BoardPosition doubleForward = new BoardPosition(from.getX(), from.getY() + orient * 2);
@@ -47,17 +38,62 @@ public class PawnStrategy implements ChessPieceStrategy {
 			}
 		}
 		
-		if (rightDiagForward.insideBoard(b) && 
-				(b.isOpponentAt(rightDiagForward, color) || rightDiagForward.equals(enPassantTarget))) {
+		if (canCapture(rightDiagForward, orient, b, color)) {
 			moves.add(new ChessMove(from, rightDiagForward, color));
 		}
-		
-		if (leftDiagForward.insideBoard(b) && 
-				(b.isOpponentAt(leftDiagForward, color) || leftDiagForward.equals(enPassantTarget))) {
+
+		if (canCapture(leftDiagForward, orient, b, color)) {
 			moves.add(new ChessMove(from, leftDiagForward, color));
 		}
 		
 		return moves;
+	}
+	
+	private int getPawnRank(Board b, ChessColor color) {
+		int pawnRank = 0;
+		if (color == ChessColor.WHITE) {
+			pawnRank = b.getSize() - 2;
+		} else {
+			pawnRank = 1;
+		}
+		return pawnRank;
+	}
+
+	private int getOrient(ChessColor color) {
+		int orient = 0;
+		if (color == ChessColor.WHITE) {
+			orient = -1;
+		} else {
+			orient = 1;
+		}
+		return orient;
+	}
+
+	public boolean canCapture(BoardPosition diagForward, int orient,
+			Board b, ChessColor color) {
+		BoardPosition enPassantTarget = b.getEnPassantTarget();
+		
+		BoardPosition enPassantPawn = null;
+		boolean isOpponentEnPassant = false;
+		
+		if (enPassantTarget != null) {
+			enPassantPawn = new BoardPosition(enPassantTarget.getX(),
+								  enPassantTarget.getY() + (-1) * orient);
+		
+			isOpponentEnPassant = enPassantPawn.insideBoard(b) &&
+									  b.isOpponentAt(enPassantPawn, color);
+		}
+
+		if (diagForward.insideBoard(b)) {
+			if (b.isOpponentAt(diagForward, color)) {
+				return true;
+			} else if (diagForward.equals(enPassantTarget)
+					&& isOpponentEnPassant) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }
