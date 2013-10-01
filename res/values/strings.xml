@@ -8,5 +8,9 @@
     <string name="action_help">Help</string>
     <string name="action_settings">Settings</string>
     <string name="action_favorite">Favorite</string>
+    <string name="white_player">White</string>
+    <string name="black_player">Black</string>
+    <string name="active_player">Player:</string>
+    <string name="active_player_content">Active: White</string>
     
 </resources>

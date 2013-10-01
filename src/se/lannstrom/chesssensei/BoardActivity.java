@@ -1,6 +1,6 @@
 package se.lannstrom.chesssensei;
 
-
+import se.lannstrom.chesssensei.model.Board.ChessColor;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 public class BoardActivity extends Activity {
 
@@ -20,6 +21,34 @@ public class BoardActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		setContentView(R.layout.activity_board);
+		
+		setupActiveTextView();
+	}
+
+	/**
+	 * Make the text view active_player show whose turn it currently is
+	 */
+	private void setupActiveTextView() {
+		BoardView bv = (BoardView) findViewById(R.id.board_view);
+		final TextView tv = (TextView) findViewById(R.id.active_player);
+		
+		bv.addActiveColorChangeListener(new ActiveColorChangeListener() {
+			
+			@Override
+			public void activeColor(ChessColor c) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(getString(R.string.active_player));
+				sb.append(" ");
+				if (c == ChessColor.WHITE) {
+					sb.append(getString(R.string.white_player));
+				} else {
+					sb.append(getString(R.string.black_player));
+				}
+				
+				tv.setText(sb.toString());
+				tv.invalidate();
+			}
+		});
 	}
 
 	@Override
@@ -47,5 +76,7 @@ public class BoardActivity extends Activity {
 		BoardView bv = (BoardView) findViewById(R.id.board_view);
 		bv.flip();
 	}
+	
+	
 	
 }

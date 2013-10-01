@@ -1,5 +1,6 @@
 package se.lannstrom.chesssensei;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import se.lannstrom.chesssensei.SelectionManager.SelectionState;
@@ -51,6 +52,9 @@ public class BoardView extends View {
 
 	private ChessRuleStrategy chessRuleStrategy;
 
+	private ArrayList<ActiveColorChangeListener> activeColorListener = 
+			new ArrayList<ActiveColorChangeListener>();
+
 
 	public BoardView(Context context, AttributeSet as) {
 		super(context, as);
@@ -80,17 +84,32 @@ public class BoardView extends View {
 		chessRuleStrategy = new ChessRuleStrategy();
 		
 		loadChessPieceImages();
+		
+		informActiveColorListeners(board.getActive());
 	}
-
+	
+	public void addActiveColorChangeListener(ActiveColorChangeListener l) {
+		activeColorListener.add(l);
+	}
+	
+	private void informActiveColorListeners(ChessColor c) {
+		for (ActiveColorChangeListener l : activeColorListener) 
+			l.activeColor(c);
+	}
 
 	protected void doMove() {
 		ChessMove move = selectionManager.buildMove();
 		chessRuleStrategy.doMove(board, move);
 		selectionManager.reset();
-		selectionManager.setColor(board.getActive());
+		
+		ChessColor active = board.getActive();
+		selectionManager.setColor(active);
+		informActiveColorListeners(active);
 		
 		invalidate();
 	}
+
+
 
 
 	private void loadChessPieceImages() {
