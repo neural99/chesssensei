@@ -116,12 +116,31 @@ public class ChessRuleStrategy {
 	 */
 	public boolean doMove(Board b, ChessMove move) {
 		List<ChessMove> validMoves = getValidMoves(b, move.getFrom(), move.getColor());
-		if (validMoves.contains(move)) {
-			executeMove(b, move);
+		ChessMove realMove = findValidMove(move, validMoves);
+		if (realMove != null) {
+			executeMove(b, realMove);
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Linear search after a valid move with the same start position such as move. 
+	 * 
+	 * This is needed as we don't set the enPassant flag from the GUI part
+	 *  
+	 * @param move
+	 * @param validMoves
+	 * @return
+	 */
+	private ChessMove findValidMove(ChessMove move, List<ChessMove> validMoves) {
+		for (int i = 0; i < validMoves.size(); i++) {
+			ChessMove cm = validMoves.get(i);
+			if (cm.isEqualFromAndTo(move))
+				return cm;
+		}
+		return null;
 	}
 
 	/**
@@ -134,25 +153,58 @@ public class ChessRuleStrategy {
 		/* TODO: Update all status in board */
 		
 		if (move.isCastle()) {
-			Castle castle = move.getCastling();
-			if (castle == Castle.B_KINGSIDE || 
-				castle == Castle.W_KINGSIDE) {
-				executeKingsideCastling(b, move);
-			} else if (castle == Castle.B_QUEENSIDE ||
-					   castle == Castle.W_QUEENSIDE) {
-				executeQueensideCastling(b, move);
-			}
+			executeCastle(b, move);
+		} else if (move.isEnPassant()) {
+			executeEnPassantCapture(b, move);
 		} else {
-			ChessPiece cp = b.getPieceAt(move.getFrom());
-			if (cp != null && cp.isPawn()) {
-				updateEnPassantTarget(b, move);
-			}
-			
-			b.setPieceAt(move.getTo(), cp);
-			b.setPieceAt(move.getFrom(), null);
+			executeOrdinaryMove(b, move);
 		}
 		
 		b.toggleActive();
+	}
+
+	private void executeEnPassantCapture(Board b, ChessMove move) {
+		BoardPosition from = move.getFrom();
+		BoardPosition to = move.getTo();
+		int targetX = to.getX();
+		int targetY = to.getY() + (-1) * getOrient(move.getColor());
+		
+		System.out.println(targetX + "," + targetY);
+		
+		b.setEmptyAt(targetX, targetY);
+		
+		ChessPiece cp = b.getPieceAt(from);
+		b.setPieceAt(to, cp);
+		b.setEmptyAt(from);
+	}
+
+	private void executeOrdinaryMove(Board b, ChessMove move) {
+		ChessPiece cp = b.getPieceAt(move.getFrom());
+		if (cp != null && cp.isPawn()) {
+			updateEnPassantTarget(b, move);
+		}
+		
+		b.setPieceAt(move.getTo(), cp);
+		b.setEmptyAt(move.getFrom());
+	}
+
+	private void executeCastle(Board b, ChessMove move) {
+		Castle castle = move.getCastling();
+		if (castle == Castle.B_KINGSIDE || 
+			castle == Castle.W_KINGSIDE) {
+			executeKingsideCastling(b, move);
+		} else if (castle == Castle.B_QUEENSIDE ||
+				   castle == Castle.W_QUEENSIDE) {
+			executeQueensideCastling(b, move);
+		}
+	}
+	
+	private int getOrient(ChessColor c) {
+		if (c == ChessColor.WHITE) {
+			return -1;
+		} else {
+			return 1;
+		}
 	}
 	
 	private void executeKingsideCastling(Board b, ChessMove move) {

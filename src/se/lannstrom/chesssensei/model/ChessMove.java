@@ -18,11 +18,14 @@ public class ChessMove {
 	private Castle castling = Castle.NONE;
 	
 	private ChessColor color;
+	private boolean enPassant;
 	
 	public ChessMove(ChessMove other) {
 		this.from = other.from;
 		this.to = other.to;
+		this.castling = other.castling;
 		this.color = other.color;
+		this.enPassant = other.enPassant;
 	}
 	
 	public ChessMove(Castle c) {
@@ -41,6 +44,14 @@ public class ChessMove {
 		from = f;
 		to = t;
 		color = c;
+	}
+
+	public ChessMove(BoardPosition f, BoardPosition t,
+			ChessColor c, boolean enPassant) {
+		from = f;
+		to = t;
+		color = c;
+		this.enPassant = enPassant;
 	}
 
 	public BoardPosition getFrom() {
@@ -67,6 +78,19 @@ public class ChessMove {
 		return castling != Castle.NONE;
 	} 
 	
+	public boolean isEnPassant() {
+		return enPassant;
+	}
+
+	public void setEnPassant(boolean enPassant) {
+		this.enPassant = enPassant;
+	}
+	
+	public boolean isEqualFromAndTo(ChessMove m) {
+		return this.from.equals(m.from) &&
+			   this.to.equals(m.to);
+	}
+
 	@Override
 	public String toString() {
 		if (isCastle()) {
@@ -89,6 +113,7 @@ public class ChessMove {
 		result = prime * result
 				+ ((castling == null) ? 0 : castling.hashCode());
 		result = prime * result + ((color == null) ? 0 : color.hashCode());
+		result = prime * result + (enPassant ? 1231 : 1237);
 		result = prime * result + ((from == null) ? 0 : from.hashCode());
 		result = prime * result + ((to == null) ? 0 : to.hashCode());
 		return result;
@@ -106,6 +131,8 @@ public class ChessMove {
 		if (castling != other.castling)
 			return false;
 		if (color != other.color)
+			return false;
+		if (enPassant != other.enPassant)
 			return false;
 		if (from == null) {
 			if (other.from != null)

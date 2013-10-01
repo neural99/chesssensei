@@ -38,12 +38,18 @@ public class PawnStrategy implements ChessPieceStrategy {
 			}
 		}
 		
-		if (canCapture(rightDiagForward, orient, b, color)) {
+		PawnCapture rightCaputre = canCapture(rightDiagForward, orient, b, color);
+		if (rightCaputre == PawnCapture.ORDINARY) {
 			moves.add(new ChessMove(from, rightDiagForward, color));
+		} else if (rightCaputre == PawnCapture.ENPASSANT) {
+			moves.add(new ChessMove(from, rightDiagForward, color, true));
 		}
 
-		if (canCapture(leftDiagForward, orient, b, color)) {
+		PawnCapture leftCapture = canCapture(leftDiagForward, orient, b, color);
+		if (leftCapture == PawnCapture.ORDINARY) {
 			moves.add(new ChessMove(from, leftDiagForward, color));
+		} else if (leftCapture == PawnCapture.ENPASSANT) {
+			moves.add(new ChessMove(from, leftDiagForward, color, true));
 		}
 		
 		return moves;
@@ -68,8 +74,12 @@ public class PawnStrategy implements ChessPieceStrategy {
 		}
 		return orient;
 	}
+	
+	private enum PawnCapture {
+		ORDINARY, ENPASSANT; 
+	}
 
-	public boolean canCapture(BoardPosition diagForward, int orient,
+	public PawnCapture canCapture(BoardPosition diagForward, int orient,
 			Board b, ChessColor color) {
 		BoardPosition enPassantTarget = b.getEnPassantTarget();
 		
@@ -86,14 +96,14 @@ public class PawnStrategy implements ChessPieceStrategy {
 
 		if (diagForward.insideBoard(b)) {
 			if (b.isOpponentAt(diagForward, color)) {
-				return true;
+				return PawnCapture.ORDINARY;
 			} else if (diagForward.equals(enPassantTarget)
 					&& isOpponentEnPassant) {
-				return true;
+				return PawnCapture.ENPASSANT;
 			}
 		}
 		
-		return false;
+		return null;
 	}
 
 }

@@ -223,11 +223,7 @@ public class BoardView extends View {
 		canvas.drawRect(rect, p);
 		
 		ChessPiece cp = null;
-		if (inverted) {
-			cp = board.getPieceAt(i, j);
-		} else {
-			cp = board.getPieceAt(i, j);
-		}
+		cp = board.getPieceAt(i, j);
 		if (cp != null) {
 			Bitmap map = scaledBitmaps.get(cp);
 			if (map != null) {

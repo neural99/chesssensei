@@ -116,7 +116,7 @@ public class Board {
 	public Board(Board other) {
 		size = other.size;
 		/* Copy board */
-		board = new ChessPiece[8][8];
+		board = new ChessPiece[other.size][other.size];
 		for (int i = 0; i < size; i++) {
 			for (int j = 0; j < size; j++) {
 				board[i][j] = other.board[i][j];
@@ -452,6 +452,14 @@ public class Board {
 		else
 			return getPieceAt(bp) == ChessPiece.B_KING;
 			
+	}
+
+	public void setEmptyAt(int x, int y) {
+		board[x][y] = null;
+	}
+
+	public void setEmptyAt(BoardPosition bp) {
+		setEmptyAt(bp.getX(), bp.getY());
 	}
 
 }
