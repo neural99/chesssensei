@@ -109,9 +109,6 @@ public class BoardView extends View {
 		invalidate();
 	}
 
-
-
-
 	private void loadChessPieceImages() {
 		Bitmap tmp = null;
 		
@@ -165,6 +162,8 @@ public class BoardView extends View {
 	   int selectedY = (int) (getRelativeY(e) / squareDiag);
 	   if (selectedX > 7) selectedX = 7;
 	   if (selectedY > 7) selectedY = 7;
+	   if (selectedX < 0) selectedX = 0;
+	   if (selectedY < 0) selectedY = 0;
 	   
 	   if (inverted) {
 		   selectedY = 7 - selectedY;

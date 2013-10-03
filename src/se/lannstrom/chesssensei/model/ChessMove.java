@@ -2,6 +2,7 @@ package se.lannstrom.chesssensei.model;
 
 import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
+import se.lannstrom.chesssensei.model.Board.ChessPiece;
 
 /**
  * Represents a single chess move. E.g. RA5
@@ -11,6 +12,19 @@ import se.lannstrom.chesssensei.model.Board.ChessColor;
  *
  */
 public class ChessMove {
+	public enum PromotionPiece {
+		QUEEN, KNIGHT, ROOK, BISHOP;
+		
+		public ChessPiece getChessPiece(ChessMove m) {
+			ChessColor c = m.getColor();
+			if (c == ChessColor.WHITE) {
+				return ChessPiece.valueOf("W_" + name());
+			} else {
+				return ChessPiece.valueOf("B_" + name());
+			}
+		}
+	}
+	
 	/* Ordinary movement */
 	private BoardPosition from;
 	private BoardPosition to;
@@ -20,12 +34,15 @@ public class ChessMove {
 	private ChessColor color;
 	private boolean enPassant;
 	
+	private PromotionPiece promotion;
+	
 	public ChessMove(ChessMove other) {
 		this.from = other.from;
 		this.to = other.to;
 		this.castling = other.castling;
 		this.color = other.color;
 		this.enPassant = other.enPassant;
+		this.promotion = other.promotion;
 	}
 	
 	public ChessMove(Castle c) {
@@ -80,6 +97,14 @@ public class ChessMove {
 	
 	public boolean isEnPassant() {
 		return enPassant;
+	}
+	
+	public PromotionPiece getPromotion() {
+		return promotion;
+	}
+	
+	public void setPromotion(PromotionPiece pp) {
+		promotion = pp;
 	}
 
 	public void setEnPassant(boolean enPassant) {

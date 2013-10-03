@@ -11,6 +11,7 @@ import se.lannstrom.chesssensei.model.Board.ChessColor;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
+import se.lannstrom.chesssensei.model.ChessMove.PromotionPiece;
 
 /**
  * Knows about how the pieces move in chess 
@@ -154,13 +155,23 @@ public class ChessRuleStrategy {
 		
 		if (move.isCastle()) {
 			executeCastle(b, move);
-		} else if (move.isEnPassant()) {
+		} else {
+			executeSingleMove(b, move);
+		}
+		
+		b.toggleActive();
+	}
+	
+	private void executeSingleMove(Board b, ChessMove move) {
+		if (move.isEnPassant()) {
 			executeEnPassantCapture(b, move);
 		} else {
 			executeOrdinaryMove(b, move);
 		}
 		
-		b.toggleActive();
+		if (isPawnPromotionMove(move, b)) {
+			promotePawn(move, b);
+		}
 	}
 
 	private void executeEnPassantCapture(Board b, ChessMove move) {
@@ -176,6 +187,9 @@ public class ChessRuleStrategy {
 		ChessPiece cp = b.getPieceAt(from);
 		b.setPieceAt(to, cp);
 		b.setEmptyAt(from);
+		
+		/* Reset half-move count */
+		b.setHalfMoveCount(0);
 	}
 
 	private void executeOrdinaryMove(Board b, ChessMove move) {
@@ -414,6 +428,31 @@ public class ChessRuleStrategy {
 			}
 		}
 		return moves;
+	}
+	
+	private boolean isPawnPromotionMove(ChessMove m, Board b) {
+		BoardPosition from = m.getFrom();
+		BoardPosition to = m.getTo();
+		ChessColor color = m.getColor();
+		ChessPiece cp = b.getPieceAt(from);
+		if (cp == ChessPiece.W_PAWN) {
+			/* Promotion only allowed if we move to the first rank */
+			return color == ChessColor.WHITE && to.getY() == 0;  
+		} else if (cp == ChessPiece.B_PAWN) {
+			/* Promotion only allowed if we move to the first rank */
+			return color == ChessColor.BLACK && to.getY() == (b.getSize() - 1);  
+		}
+		
+		return false;
+	}
+	
+	private void promotePawn(ChessMove m, Board b) {
+		BoardPosition to = m.getTo();
+		PromotionPiece pp = m.getPromotion();
+		if (pp != null) {
+			ChessPiece cp = pp.getChessPiece(m);
+			b.setPieceAt(to, cp);
+		}
 	}
 	
 	private void register(ChessPiece cp, ChessPieceStrategy s) {

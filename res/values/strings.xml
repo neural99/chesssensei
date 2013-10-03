@@ -11,6 +11,6 @@
     <string name="white_player">White</string>
     <string name="black_player">Black</string>
     <string name="active_player">Player:</string>
-    <string name="active_player_content">Active: White</string>
+    <string name="active_player_content">Player: White</string>
     
 </resources>
