@@ -2,35 +2,48 @@ package se.lannstrom.chesssensei;
 
 import java.util.List;
 
-import android.util.Log;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
+import se.lannstrom.chesssensei.model.Board.ChessPiece;
+import se.lannstrom.chesssensei.model.ChessMove.PromotionPiece;
 import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 
+/* TODO: Pawn promotion and castling. Maybe move confirmation too. */
 public class SelectionManager {
+	private BoardView boardView;
+
 	private BoardPosition from;
 	private BoardPosition to;
 	private ChessColor color;
-	
+
+	private PromotionPiece promotion;
+
 	public enum SelectionState {
 		FROM, TO;
 	}
-	
+
 	private SelectionState selectionState;
 	private Board board;
 	private ChessRuleStrategy chessRuleStrategy = new ChessRuleStrategy();
 	private int[][] moves = new int[8][8];
-	
+
 	private SelectionDoneCallback doneCallback;
-	
-	public SelectionManager(ChessColor c, Board board) {
-		color = c;
+
+	public SelectionManager(BoardView bv, ChessColor col, Board board) {
+		boardView = bv;
+		color = col;
 		this.board = board;
 	}
-	
+
 	public ChessColor getColor() {
 		return color;
 	}
@@ -38,7 +51,7 @@ public class SelectionManager {
 	public void setColor(ChessColor color) {
 		this.color = color;
 	}
-	
+
 	public BoardPosition getFrom() {
 		return from;
 	}
@@ -62,7 +75,7 @@ public class SelectionManager {
 	public void setSelectionState(SelectionState selectionState) {
 		this.selectionState = selectionState;
 	}
-	
+
 	public void setDoneCallback(SelectionDoneCallback doneCallback) {
 		this.doneCallback = doneCallback;
 	}
@@ -92,12 +105,16 @@ public class SelectionManager {
 			setSelectionState(SelectionState.TO);
 		}
 	}
-	
+
 	private void done() {
-		Log.d("Selection", "Done");
+		/* Prompt for a promotion piece if needed */
+		if (isPromotionMove()) {
+			promptForPromotionPiece();
+		}
+
 		doneCallback.selectionDone();
 	}
-	
+
 	public void reset() {
 		from = null;
 		zeroMoves();
@@ -105,13 +122,15 @@ public class SelectionManager {
 	}
 
 	private void zeroMoves() {
-		for (int i = 0; i < 8; i++) 
-			for (int j = 0; j < 8; j++)
+		for (int i = 0; i < 8; i++) {
+			for (int j = 0; j < 8; j++) {
 				moves[i][j] = 0;
+			}
+		}
 	}
 
 	private void updateMovesSelected() {
-		List<ChessMove> valid = 
+		List<ChessMove> valid =
 				chessRuleStrategy.getValidMoves(board, from, board.getActive());
 		zeroMoves();
 		for (ChessMove m : valid) {
@@ -123,10 +142,54 @@ public class SelectionManager {
 	}
 
 	public ChessMove buildMove() {
-		return new ChessMove(from, to, color);
+		ChessMove m = new ChessMove(from, to, color);
+		m.setPromotion(promotion);
+		return m;
 	}
-	
+
 	public boolean isValidMove(int x, int y) {
 		return moves[x][y] == 1;
+	}
+
+	/**
+	 * Do we need to prompt for which piece the user wants to promote to?
+	 *
+	 * @return
+	 */
+	private boolean isPromotionMove() {
+		ChessPiece cp = board.getPieceAt(from);
+		if (color == ChessColor.WHITE) {
+			return (cp == ChessPiece.W_PAWN) && (to.getY() == 0);
+		} else {
+			return (cp == ChessPiece.B_PAWN) && (to.getY() == 7);
+		}
+	}
+
+	/**
+	 * Let the use select which piece to promote to
+	 */
+	private void promptForPromotionPiece() {
+		LayoutInflater inflater = (LayoutInflater)
+		boardView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(boardView.context);
+
+		builder.setView(inflater.inflate(R.layout.promotion_dialog,
+				(ViewGroup) boardView.findViewById(R.id.linear_1)));
+
+		final PromotionSelectionView psv = (PromotionSelectionView)
+				boardView.findViewById(R.id.promotion_view);
+
+		builder.setPositiveButton("Ok", new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				PromotionPiece p = psv.getSelectedPiece();
+				if (p != null) {
+					promotion = p;
+					dialog.dismiss();
+				}
+			}
+		});
 	}
 }

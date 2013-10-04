@@ -7,14 +7,14 @@ import se.lannstrom.chesssensei.model.Board.ChessPiece;
 /**
  * Represents a single chess move. E.g. RA5
  * Immutable.
- * 
+ *
  * @author x1x
  *
  */
 public class ChessMove {
 	public enum PromotionPiece {
 		QUEEN, KNIGHT, ROOK, BISHOP;
-		
+
 		public ChessPiece getChessPiece(ChessMove m) {
 			ChessColor c = m.getColor();
 			if (c == ChessColor.WHITE) {
@@ -23,19 +23,27 @@ public class ChessMove {
 				return ChessPiece.valueOf("B_" + name());
 			}
 		}
+
+		public ChessPiece getChessPiece(ChessColor c) {
+			if (c == ChessColor.WHITE) {
+				return ChessPiece.valueOf("W_" + name());
+			} else {
+				return ChessPiece.valueOf("B_" + name());
+			}
+		}
 	}
-	
+
 	/* Ordinary movement */
 	private BoardPosition from;
 	private BoardPosition to;
 	/* Or castling */
 	private Castle castling = Castle.NONE;
-	
+
 	private ChessColor color;
 	private boolean enPassant;
-	
+
 	private PromotionPiece promotion;
-	
+
 	public ChessMove(ChessMove other) {
 		this.from = other.from;
 		this.to = other.to;
@@ -44,18 +52,21 @@ public class ChessMove {
 		this.enPassant = other.enPassant;
 		this.promotion = other.promotion;
 	}
-	
+
+	/* TODO: Set from and to */
 	public ChessMove(Castle c) {
 		castling = c;
-		if (castling == Castle.W_KINGSIDE ||
-			castling == Castle.W_QUEENSIDE) {
-			color = ChessColor.WHITE; 
-		} else if (castling == Castle.B_KINGSIDE || 
-				   castling == Castle.B_QUEENSIDE) {
+		if (castling == Castle.W_KINGSIDE) {
+			color = ChessColor.WHITE;
+		} else if (castling == Castle.W_QUEENSIDE) {
+			color = ChessColor.WHITE;
+		} else if (castling == Castle.B_KINGSIDE) {
+			color = ChessColor.BLACK;
+		} else if (castling == Castle.B_QUEENSIDE) {
 			color = ChessColor.BLACK;
 		}
 	}
-	
+
 	public ChessMove(BoardPosition f, BoardPosition t,
 			ChessColor c) {
 		from = f;
@@ -74,15 +85,15 @@ public class ChessMove {
 	public BoardPosition getFrom() {
 		return from;
 	}
-	
+
 	public BoardPosition getTo() {
 		return to;
 	}
-	
+
 	public ChessColor getColor() {
 		return color;
 	}
-	
+
 	public Castle getCastling() {
 		return castling;
 	}
@@ -90,19 +101,19 @@ public class ChessMove {
 	public void setCastling(Castle castling) {
 		this.castling = castling;
 	}
-	
+
 	public boolean isCastle() {
 		return castling != Castle.NONE;
-	} 
-	
+	}
+
 	public boolean isEnPassant() {
 		return enPassant;
 	}
-	
+
 	public PromotionPiece getPromotion() {
 		return promotion;
 	}
-	
+
 	public void setPromotion(PromotionPiece pp) {
 		promotion = pp;
 	}
@@ -110,7 +121,7 @@ public class ChessMove {
 	public void setEnPassant(boolean enPassant) {
 		this.enPassant = enPassant;
 	}
-	
+
 	public boolean isEqualFromAndTo(ChessMove m) {
 		return this.from.equals(m.from) &&
 			   this.to.equals(m.to);
@@ -119,12 +130,12 @@ public class ChessMove {
 	@Override
 	public String toString() {
 		if (isCastle()) {
-			if (castling == Castle.W_KINGSIDE || 
-				castling == Castle.B_KINGSIDE) { 
+			if (castling == Castle.W_KINGSIDE ||
+				castling == Castle.B_KINGSIDE) {
 				return "0-0";
-			} else { 
+			} else {
 				return "0-0-0";
-			}	
+			}
 		} else {
 			return "From: " + from.toString() +
 				  " To: " + to.toString();
@@ -171,5 +182,5 @@ public class ChessMove {
 			return false;
 		return true;
 	}
-	
+
 }

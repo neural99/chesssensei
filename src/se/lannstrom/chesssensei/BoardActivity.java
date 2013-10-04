@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -15,13 +14,20 @@ import android.widget.TextView;
 public class BoardActivity extends Activity {
 
 	final Context context = this;
-	
+
+	private BoardView boardView;
+	private TextView activeTextView;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		setContentView(R.layout.activity_board);
-		
+
+		/* Get references to the views */
+		boardView = (BoardView) findViewById(R.id.board_view);
+		activeTextView = (TextView) findViewById(R.id.active_player);
+
 		setupActiveTextView();
 	}
 
@@ -29,11 +35,8 @@ public class BoardActivity extends Activity {
 	 * Make the text view active_player show whose turn it currently is
 	 */
 	private void setupActiveTextView() {
-		BoardView bv = (BoardView) findViewById(R.id.board_view);
-		final TextView tv = (TextView) findViewById(R.id.active_player);
-		
-		bv.addActiveColorChangeListener(new ActiveColorChangeListener() {
-			
+		boardView.addActiveColorChangeListener(new ActiveColorChangeListener() {
+
 			@Override
 			public void activeColor(ChessColor c) {
 				StringBuilder sb = new StringBuilder();
@@ -44,9 +47,9 @@ public class BoardActivity extends Activity {
 				} else {
 					sb.append(getString(R.string.black_player));
 				}
-				
-				tv.setText(sb.toString());
-				tv.invalidate();
+
+				activeTextView.setText(sb.toString());
+				activeTextView.invalidate();
 			}
 		});
 	}
@@ -57,26 +60,24 @@ public class BoardActivity extends Activity {
 		inflater.inflate(R.menu.board_activity_actions, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
-	
+
 	/**
 	 * Show an about dialog
 	 */
 	public void showAboutDialog(MenuItem item) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
 				context);
-		
+
 		alertDialogBuilder.setMessage("ChessSensei\n\nBy Daniel Lännström\nCopyright 2013\n")
 						  .setTitle("About")
 						  .setNeutralButton("OK", null);
 		alertDialogBuilder.create().show();
 	}
-	
+
 	public void flipBoard(View view) {
-		Log.d("Chess","In flipboard");
 		BoardView bv = (BoardView) findViewById(R.id.board_view);
 		bv.flip();
 	}
-	
-	
-	
+
+
 }

@@ -12,13 +12,11 @@ import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,35 +28,41 @@ public class BoardView extends View {
 		   tapped(e);
 		   return true;
 	   }
-	   
+
 	}
-	private GestureDetector detector = new GestureDetector(BoardView.this.getContext(), new GuestureDect());
+	private GestureDetector detector =
+			new GestureDetector(BoardView.this.getContext(), new GuestureDect());
 
 	private Board board;
 	private Paint darkPaint;
 	private Paint lightPaint;
 	private Rect rect;
 	private int squareDiag;
+
+	/* Set if the user has flipped the screen */
 	private boolean inverted;
-	
+
 	private SelectionManager selectionManager;
-	
 	private Paint fromSelectedPaint;
-	
 	private Paint movesPaint;
-	
-	private HashMap<ChessPiece, Bitmap> bigBitmaps = new HashMap<Board.ChessPiece, Bitmap>();
+
 	private HashMap<ChessPiece, Bitmap> scaledBitmaps = new HashMap<Board.ChessPiece, Bitmap>();
 
 	private ChessRuleStrategy chessRuleStrategy;
 
-	private ArrayList<ActiveColorChangeListener> activeColorListener = 
+	/**
+	 * Listeners to inform when the current player changes
+	 */
+	private ArrayList<ActiveColorChangeListener> activeColorListener =
 			new ArrayList<ActiveColorChangeListener>();
 
+	Context context;
 
 	public BoardView(Context context, AttributeSet as) {
 		super(context, as);
-		
+
+		this.context = context;
+
 		darkPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		darkPaint.setColor(Color.GREEN);
 		lightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -67,138 +71,106 @@ public class BoardView extends View {
 		fromSelectedPaint.setColor(Color.RED);
 		movesPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		movesPaint.setColor(Color.BLUE);
-		
+
 		rect = new Rect();
 		board = Board.createStartingBoard();
-		
-		selectionManager = new SelectionManager(ChessColor.WHITE, board);
+
+		selectionManager = new SelectionManager(this, ChessColor.WHITE, board);
 		selectionManager.setDoneCallback(new SelectionDoneCallback() {
-			
+
 			@Override
 			public void selectionDone() {
+				/* TODO: Animate with property animator */
 				doMove();
 			}
 		});
 		selectionManager.setSelectionState(SelectionState.FROM);
-		
+
 		chessRuleStrategy = new ChessRuleStrategy();
-		
-		loadChessPieceImages();
-		
+
 		informActiveColorListeners(board.getActive());
 	}
-	
+
 	public void addActiveColorChangeListener(ActiveColorChangeListener l) {
 		activeColorListener.add(l);
 	}
-	
+
 	private void informActiveColorListeners(ChessColor c) {
-		for (ActiveColorChangeListener l : activeColorListener) 
+		for (ActiveColorChangeListener l : activeColorListener) {
 			l.activeColor(c);
+		}
 	}
 
+	/**
+	 * Callback from SelectionManager when the user is done inputting a move
+	 */
 	protected void doMove() {
 		ChessMove move = selectionManager.buildMove();
 		chessRuleStrategy.doMove(board, move);
 		selectionManager.reset();
-		
+
 		ChessColor active = board.getActive();
 		selectionManager.setColor(active);
 		informActiveColorListeners(active);
-		
-		invalidate();
-	}
 
-	private void loadChessPieceImages() {
-		Bitmap tmp = null;
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.bking);
-		bigBitmaps.put(ChessPiece.B_KING, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wking);
-		bigBitmaps.put(ChessPiece.W_KING, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.bqueen);
-		bigBitmaps.put(ChessPiece.B_QUEEN, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wqueen);
-		bigBitmaps.put(ChessPiece.W_QUEEN, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.brook);
-		bigBitmaps.put(ChessPiece.B_ROOK, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wrook);
-		bigBitmaps.put(ChessPiece.W_ROOK, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.bbishop);
-		bigBitmaps.put(ChessPiece.B_BISHOP, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wbishop);
-		bigBitmaps.put(ChessPiece.W_BISHOP, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.bknight);
-		bigBitmaps.put(ChessPiece.B_KNIGHT, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wknight);
-		bigBitmaps.put(ChessPiece.W_KNIGHT, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.bpawn);
-		bigBitmaps.put(ChessPiece.B_PAWN, tmp);
-		
-		tmp = BitmapFactory.decodeResource(getResources(), R.raw.wpawn);
-		bigBitmaps.put(ChessPiece.W_PAWN, tmp);
+		invalidate();
 	}
 
 	public double getRelativeX(MotionEvent e) {
 		return e.getX() - getLeft();
 	}
-	
+
 	public double getRelativeY(MotionEvent e) {
 		return e.getY() - getTop();
 	}
-	
+
 	public void tapped(MotionEvent e) {
 	   int selectedX = (int) (getRelativeX(e) / squareDiag);
 	   int selectedY = (int) (getRelativeY(e) / squareDiag);
+	   /* Make sure we stay inside the boundaries of the board */
 	   if (selectedX > 7) selectedX = 7;
 	   if (selectedY > 7) selectedY = 7;
 	   if (selectedX < 0) selectedX = 0;
 	   if (selectedY < 0) selectedY = 0;
-	   
+
 	   if (inverted) {
 		   selectedY = 7 - selectedY;
 	   }
-	   
+
 	   selectionManager.select(selectedX, selectedY);
-	   
+
 	   invalidate();
 	}
 
 	public Board getBoard() {
 		return board;
 	}
-	
+
 	public void setBoard(Board b) {
 		board = b;
 		invalidate();
 	}
-	
-	
+
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
-		
+
 		int squareWidth = w / 8;
 		int squareHeight = h / 8;
-		
+
 		squareDiag = Math.min(squareWidth, squareHeight);
 		scaleBitmaps(squareDiag);
 	}
 
+	/**
+	 * Scale the images of the chess pieces so they fit in the new square size
+	 *
+	 * @param dstDiag new square diagonal
+	 */
 	private void scaleBitmaps(int dstDiag) {
-		for (ChessPiece cp : bigBitmaps.keySet()) {
-			Bitmap big = bigBitmaps.get(cp);
-			Bitmap scaled = Bitmap.createScaledBitmap(big, dstDiag, dstDiag, true);
+		for (ChessPiece cp : ChessPiece.values()) {
+			Bitmap scaled =  ChessPieceImages.getInstance(context).
+					getScaledChessPiece(cp, dstDiag);
 			scaledBitmaps.put(cp, scaled);
 		}
 	}
@@ -206,7 +178,7 @@ public class BoardView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
+
 		for (int i = 0; i < 8; i++) {
 			for (int j = 0; j < 8; j ++) {
 				drawSquare(canvas, i, j);
@@ -214,20 +186,29 @@ public class BoardView extends View {
 		}
 	}
 
+	/**
+	 * Draw the chess square at (i, j)
+	 *
+	 * @param canvas
+	 * @param i
+	 * @param j
+	 */
 	private void drawSquare(Canvas canvas, int i, int j) {
 		rect.left = getLeft() + i * squareDiag;
 		rect.right = rect.left + squareDiag;
 		rect.top = getTop() + j * squareDiag;
 		rect.bottom = rect.top + squareDiag;
-		
+
+		/* Logic for handling flipping the screen */
 		if (inverted) {
 			j = 7 - j;
 		}
-		
+
+		/* Draw square background */
 		Paint p = null;
 		BoardPosition from = selectionManager.getFrom();
-		if (from != null && 
-				from.getX() == i && 
+		if (from != null &&
+				from.getX() == i &&
 				from.getY() == j) {
 			p = fromSelectedPaint;
 		} else if (selectionManager.isValidMove(i, j)) {
@@ -237,17 +218,16 @@ public class BoardView extends View {
 		} else {
 			p = lightPaint;
 		}
-		
+
 		canvas.drawRect(rect, p);
-		
+
+		/* Draw chess piece image */
 		ChessPiece cp = null;
 		cp = board.getPieceAt(i, j);
 		if (cp != null) {
 			Bitmap map = scaledBitmaps.get(cp);
 			if (map != null) {
 				canvas.drawBitmap(map, null, rect, p);
-			} else {
-				Log.d("", cp.toString());
 			}
 		}
 	}
@@ -258,7 +238,10 @@ public class BoardView extends View {
 		return result;
 	}
 
-
+	/**
+	 * Allow the user to flip the screen from white at the top to white at the
+	 * bottom
+	 */
 	public void flip() {
 		if (inverted) {
 			inverted = false;
