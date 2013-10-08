@@ -41,7 +41,6 @@ public class PromotionSelectionView extends View {
 	private int selectedPiece = -1;
 
 	private int width;
-	private int height;
 	private int diag;
 
 	private Rect rect;
@@ -110,8 +109,7 @@ public class PromotionSelectionView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 
 		width = w;
-		height = h;
-		diag = (Math.min(width, height) / PromotionPiece.values().length) - PADDING;
+		diag = (width / PromotionPiece.values().length) - PADDING;
 
 		/* Setup images for new size */
 		images.clear();
@@ -125,8 +123,7 @@ public class PromotionSelectionView extends View {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-			/* Don't make the icons bigger than 256x256 */
-			int desiredWidth = (256 + PADDING) * PromotionPiece.values().length;
+			int desiredWidth = (512 + PADDING) * PromotionPiece.values().length;
 
 		    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
 		    int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -144,7 +141,7 @@ public class PromotionSelectionView extends View {
 		        width = desiredWidth;
 		    }
 
-		    int desiredHeight = (width / PromotionPiece.values().length) - PADDING;
+		    int desiredHeight = (width / PromotionPiece.values().length);
 
 		    if (heightMode == MeasureSpec.EXACTLY) {
 		        height = heightSize;
