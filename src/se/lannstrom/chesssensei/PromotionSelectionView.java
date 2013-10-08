@@ -140,6 +140,7 @@ public class PromotionSelectionView extends View {
 		   selectedX = PromotionPiece.values().length - 1;
 	   }
 	   selectedPiece = selectedX;
+	   invalidate();
 	}
 
 	@Override

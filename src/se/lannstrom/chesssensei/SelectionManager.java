@@ -6,8 +6,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.view.View;
 
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
@@ -174,22 +175,28 @@ public class SelectionManager {
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(boardView.context);
 
-		builder.setView(inflater.inflate(R.layout.promotion_dialog,
-				(ViewGroup) boardView.findViewById(R.id.linear_1)));
+		View view = inflater.inflate(R.layout.promotion_dialog, null);
+		builder.setView(view);
 
 		final PromotionSelectionView psv = (PromotionSelectionView)
-				boardView.findViewById(R.id.promotion_view);
+				view.findViewById(R.id.promotion_view);
+
+		/* Set color to the current moves color */
+		psv.setColor(color);
 
 		builder.setPositiveButton("Ok", new OnClickListener() {
 
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				PromotionPiece p = psv.getSelectedPiece();
+				Log.d("ChessSensei", p.toString());
 				if (p != null) {
 					promotion = p;
 					dialog.dismiss();
 				}
 			}
 		});
+
+		builder.create().show();
 	}
 }

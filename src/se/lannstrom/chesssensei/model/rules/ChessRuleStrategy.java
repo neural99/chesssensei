@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import android.util.Log;
+
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
@@ -14,18 +16,18 @@ import se.lannstrom.chesssensei.model.Board.ChessPiece;
 import se.lannstrom.chesssensei.model.ChessMove.PromotionPiece;
 
 /**
- * Knows about how the pieces move in chess 
+ * Knows about how the pieces move in chess
  * @author x1x
  *
  */
 public class ChessRuleStrategy {
 	private HashMap<ChessPiece, ChessPieceStrategy> pieceStrategies =
 			new HashMap<ChessPiece, ChessPieceStrategy>();
-	
+
 	public ChessRuleStrategy() {
 		setupStandard();
 	}
-	
+
 	/**
 	 * Setup standard rules of chess
 	 */
@@ -33,32 +35,32 @@ public class ChessRuleStrategy {
 		/* Rook */
 		register(ChessPiece.W_ROOK, new RookStrategy());
 		register(ChessPiece.B_ROOK, new RookStrategy());
-		
+
 		/* Bishop */
 		register(ChessPiece.W_BISHOP, new BishopStrategy());
 		register(ChessPiece.B_BISHOP, new BishopStrategy());
-		
+
 		/* Knight */
 		register(ChessPiece.W_KNIGHT, new KnightStrategy());
 		register(ChessPiece.B_KNIGHT, new KnightStrategy());
-		
+
 		/* Queen */
 		register(ChessPiece.W_QUEEN, new QueenStrategy());
 		register(ChessPiece.B_QUEEN, new QueenStrategy());
-		
+
 		/* King */
 		register(ChessPiece.W_KING, new KingStrategy());
 		register(ChessPiece.B_KING, new KingStrategy());
-		
+
 		/* Pawn */
 		register(ChessPiece.W_PAWN, new PawnStrategy());
 		register(ChessPiece.B_PAWN, new PawnStrategy());
 	}
-	
+
 	/**
 	 * Get a list of valid moves for the chesspiece at position from with color c
 	 * if from is null get valid castling
-	 * 
+	 *
 	 * @param b
 	 * @param from
 	 * @param c
@@ -70,29 +72,29 @@ public class ChessRuleStrategy {
 
 		/* Is it a king at from and it is the starting position */
 		BoardPosition kingPos = Board.getStartingKingPos(c);
-		boolean kingFrom = kingPos.equals(from) && b.isKingAt(from, c); 
+		boolean kingFrom = kingPos.equals(from) && b.isKingAt(from, c);
 
 		if (from == null || kingFrom) {
 			addAvailableCastling(moves, c, b);
 		}
-		
+
 		/* Call getMove to get moves available from boardposition from */
 		if (from != null) {
 			moves.addAll(getMoves(b, from, c));
 		}
-		
+
 		/* Check if added moves are legal */
 		for (ChessMove m : moves) {
 			if (isValidMove(b, m)) {
 				validMoves.add(m);
 			}
 		}
-		
+
 		return validMoves;
 	}
-	
+
 	private void addAvailableCastling(ArrayList<ChessMove> validMoves,
-			ChessColor c, Board b) {
+									  ChessColor c, Board b) {
 		List<Castle> available = b.getAvailableCastle();
 		if (c == ChessColor.WHITE) {
 			if (available.contains(Castle.W_KINGSIDE)) {
@@ -127,10 +129,10 @@ public class ChessRuleStrategy {
 	}
 
 	/**
-	 * Linear search after a valid move with the same start position such as move. 
-	 * 
+	 * Linear search after a valid move with the same start position such as move.
+	 *
 	 * This is needed as we don't set the enPassant flag from the GUI part
-	 *  
+	 *
 	 * @param move
 	 * @param validMoves
 	 * @return
@@ -146,30 +148,31 @@ public class ChessRuleStrategy {
 
 	/**
 	 * Perform a move without controlling if it is legal
-	 * 
+	 *
 	 * @param b
 	 * @param move
 	 */
 	private void executeMove(Board b, ChessMove move) {
 		/* TODO: Update all status in board */
-		
+
 		if (move.isCastle()) {
 			executeCastle(b, move);
 		} else {
 			executeSingleMove(b, move);
 		}
-		
+
 		b.toggleActive();
 	}
-	
+
 	private void executeSingleMove(Board b, ChessMove move) {
 		if (move.isEnPassant()) {
 			executeEnPassantCapture(b, move);
 		} else {
 			executeOrdinaryMove(b, move);
 		}
-		
+
 		if (isPawnPromotionMove(move, b)) {
+			Log.d("ChessSensei", "isPawnPromotion");
 			promotePawn(move, b);
 		}
 	}
@@ -179,15 +182,15 @@ public class ChessRuleStrategy {
 		BoardPosition to = move.getTo();
 		int targetX = to.getX();
 		int targetY = to.getY() + (-1) * getOrient(move.getColor());
-		
+
 		System.out.println(targetX + "," + targetY);
-		
+
 		b.setEmptyAt(targetX, targetY);
-		
+
 		ChessPiece cp = b.getPieceAt(from);
 		b.setPieceAt(to, cp);
 		b.setEmptyAt(from);
-		
+
 		/* Reset half-move count */
 		b.setHalfMoveCount(0);
 	}
@@ -197,14 +200,14 @@ public class ChessRuleStrategy {
 		if (cp != null && cp.isPawn()) {
 			updateEnPassantTarget(b, move);
 		}
-		
+
 		b.setPieceAt(move.getTo(), cp);
 		b.setEmptyAt(move.getFrom());
 	}
 
 	private void executeCastle(Board b, ChessMove move) {
 		Castle castle = move.getCastling();
-		if (castle == Castle.B_KINGSIDE || 
+		if (castle == Castle.B_KINGSIDE ||
 			castle == Castle.W_KINGSIDE) {
 			executeKingsideCastling(b, move);
 		} else if (castle == Castle.B_QUEENSIDE ||
@@ -212,7 +215,7 @@ public class ChessRuleStrategy {
 			executeQueensideCastling(b, move);
 		}
 	}
-	
+
 	private int getOrient(ChessColor c) {
 		if (c == ChessColor.WHITE) {
 			return -1;
@@ -220,14 +223,14 @@ public class ChessRuleStrategy {
 			return 1;
 		}
 	}
-	
+
 	private void executeKingsideCastling(Board b, ChessMove move) {
 		ChessColor c = move.getColor();
-		BoardPosition kingFrom; 
+		BoardPosition kingFrom;
 		BoardPosition rookFrom;
 		BoardPosition kingTo;
 		BoardPosition rookTo;
-		
+
 		if (c == ChessColor.WHITE) {
 			kingFrom = new BoardPosition("E1");
 			rookFrom = new BoardPosition("H1");
@@ -241,18 +244,18 @@ public class ChessRuleStrategy {
 			rookTo = new BoardPosition("F8");
 			b.removeAvailableCastle(Castle.B_KINGSIDE);
 		}
-		
+
 		b.movePiece(kingFrom, kingTo);
 		b.movePiece(rookFrom, rookTo);
 	}
 
 	private void executeQueensideCastling(Board b, ChessMove move) {
 		ChessColor c = move.getColor();
-		BoardPosition kingFrom; 
+		BoardPosition kingFrom;
 		BoardPosition rookFrom;
 		BoardPosition kingTo;
 		BoardPosition rookTo;
-		
+
 		if (c == ChessColor.WHITE) {
 			kingFrom = new BoardPosition("E1");
 			rookFrom = new BoardPosition("A1");
@@ -266,7 +269,7 @@ public class ChessRuleStrategy {
 			rookTo = new BoardPosition("D8");
 			b.removeAvailableCastle(Castle.B_QUEENSIDE);
 		}
-		
+
 		b.movePiece(kingFrom, kingTo);
 		b.movePiece(rookFrom, rookTo);
 	}
@@ -275,7 +278,7 @@ public class ChessRuleStrategy {
 		BoardPosition from = move.getFrom();
 		BoardPosition to = move.getTo();
 		ChessColor color = move.getColor();
-		
+
 		boolean isDoubleStep = Math.abs(to.getY() - from.getY()) == 2;
 		if (isDoubleStep) {
 			int dir = 0;
@@ -291,7 +294,7 @@ public class ChessRuleStrategy {
 
 	/**
 	 * Check if a move returned from getValid moves is valid
-	 * 
+	 *
 	 * @param b
 	 * @param move
 	 * @return
@@ -305,40 +308,40 @@ public class ChessRuleStrategy {
 			}
 		} else {
 			throw new IllegalArgumentException("ChessMove is not valid. Wrong color is active." +
-											   "In Board object active color is: " + b.getActive() + 
+											   "In Board object active color is: " + b.getActive() +
 											   " and in ChessMove object: " + move.getColor());
 		}
 	}
 
 	/**
 	 * Check if it is possible to castle.
-	 * 
-	 * We need to check that 
+	 *
+	 * We need to check that
 	 * 		1) Squares in between must be empty
 	 * 		2) King is not in check
 	 * 		3) King doesn't pass over any square that is in check
 	 * 		4) King doesn't end up in check
-	 * 
+	 *
 	 * @param b
 	 * @param move
 	 * @return
 	 */
 	private boolean isCanCastle(Board b, ChessMove move) {
 		List<ChessMove> moves = getAllMoves(b, ChessColor.getOpponent(move.getColor()));
-		
+
 		/* King rank */
 		String rank = null;
 		if (move.getColor() == ChessColor.WHITE) {
-			rank = "1"; 
+			rank = "1";
 		} else {
 			rank = "8";
 		}
-		
+
 		/* Check condition 1 */
-		if (!isBetweenSquaresEmtpy(b, rank, move)) { 
+		if (!isBetweenSquaresEmtpy(b, rank, move)) {
 			return false;
 		}
-		
+
 		/* Is the forbidden squares in check? */
 		/* Condition 2-4 */
 		BoardPosition[] forbidden = new BoardPosition[3];
@@ -350,28 +353,28 @@ public class ChessRuleStrategy {
 			forbidden[1] = new BoardPosition("D" + rank);
 			forbidden[2] = new BoardPosition("C" + rank);
 		}
-		
+
 		for (ChessMove m : moves) {
 			BoardPosition to = m.getTo();
 			/* If the opponent can move to a forbidden square */
 			if (Arrays.asList(forbidden).contains(to))
 				return false;
 		}
-		
+
 		/* Condition 1-4 holds */
 		return true;
 	}
 
 	private boolean isBetweenSquaresEmtpy(Board b, String rank, ChessMove move) {
-		boolean queenEmpty = b.isEmptyAt("B" + rank) && 
+		boolean queenEmpty = b.isEmptyAt("B" + rank) &&
 							 b.isEmptyAt("C" + rank) &&
 							 b.isEmptyAt("E" + rank);
-		
+
 		boolean kingEmpty =  b.isEmptyAt("F" + rank) &&
 				 			 b.isEmptyAt("G" + rank);
-		
+
 		System.out.println(kingEmpty);
-		
+
 		if (Castle.isKingSide(move.getCastling())) {
 			return kingEmpty;
 		} else {
@@ -383,7 +386,7 @@ public class ChessRuleStrategy {
 		/* Check if activeColor is in check after move */
 		Board copy = new Board(b);
 		executeMove(copy, move);
-		List<ChessMove> opponentMoves = 
+		List<ChessMove> opponentMoves =
 				getAllMoves(copy, ChessColor.getOpponent(move.getColor()));
 
 		if (containsKingCapture(copy, move.getColor(), opponentMoves)) {
@@ -392,7 +395,7 @@ public class ChessRuleStrategy {
 			return false;
 		}
 	}
-	
+
 	private boolean containsKingCapture(Board b, ChessColor c, List<ChessMove> opponentMoves) {
 		BoardPosition kingPos = b.findKing(c);
 		if (kingPos != null) {
@@ -414,10 +417,10 @@ public class ChessRuleStrategy {
 		}
 		return moves;
 	}
-	
+
 	private List<ChessMove> getAllMoves(Board b, ChessColor c) {
 		ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
-		
+
 		for (int i = 0; i < b.getSize(); i++) {
 			for (int j = 0; j < b.getSize(); j++) {
 				BoardPosition from = new BoardPosition(i, j);
@@ -429,7 +432,7 @@ public class ChessRuleStrategy {
 		}
 		return moves;
 	}
-	
+
 	private boolean isPawnPromotionMove(ChessMove m, Board b) {
 		BoardPosition from = m.getFrom();
 		BoardPosition to = m.getTo();
@@ -437,16 +440,17 @@ public class ChessRuleStrategy {
 		ChessPiece cp = b.getPieceAt(from);
 		if (cp == ChessPiece.W_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return color == ChessColor.WHITE && to.getY() == 0;  
+			return color == ChessColor.WHITE && to.getY() == 0;
 		} else if (cp == ChessPiece.B_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return color == ChessColor.BLACK && to.getY() == (b.getSize() - 1);  
+			return color == ChessColor.BLACK && to.getY() == (b.getSize() - 1);
+		} else {
+			return false;
 		}
-		
-		return false;
 	}
-	
+
 	private void promotePawn(ChessMove m, Board b) {
+		Log.d("ChessSensei", "promotePawn");
 		BoardPosition to = m.getTo();
 		PromotionPiece pp = m.getPromotion();
 		if (pp != null) {
@@ -454,9 +458,9 @@ public class ChessRuleStrategy {
 			b.setPieceAt(to, cp);
 		}
 	}
-	
+
 	private void register(ChessPiece cp, ChessPieceStrategy s) {
 		pieceStrategies.put(cp, s);
 	}
-	
+
 }
