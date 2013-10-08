@@ -123,6 +123,40 @@ public class PromotionSelectionView extends View {
 		}
 	}
 
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+			/* Don't make the icons bigger than 256x256 */
+			int desiredWidth = (256 + PADDING) * PromotionPiece.values().length;
+
+		    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		    int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+		    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		    int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+		    int width;
+		    int height;
+
+		    if (widthMode == MeasureSpec.EXACTLY) {
+		        width = widthSize;
+		    } else if (widthMode == MeasureSpec.AT_MOST) {
+		        width = Math.min(desiredWidth, widthSize);
+		    } else {
+		        width = desiredWidth;
+		    }
+
+		    int desiredHeight = (width / PromotionPiece.values().length) - PADDING;
+
+		    if (heightMode == MeasureSpec.EXACTLY) {
+		        height = heightSize;
+		    } else if (heightMode == MeasureSpec.AT_MOST) {
+		        height = Math.min(desiredHeight, heightSize);
+		    } else {
+		        height = desiredHeight;
+		    }
+
+		    setMeasuredDimension(width, height);
+	}
+
 	public double getRelativeX(MotionEvent e) {
 		return e.getX() - getLeft();
 	}
@@ -148,4 +182,5 @@ public class PromotionSelectionView extends View {
 		boolean result = detector.onTouchEvent(event);
 		return result;
 	}
+
 }

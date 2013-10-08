@@ -440,10 +440,12 @@ public class ChessRuleStrategy {
 		ChessPiece cp = b.getPieceAt(from);
 		if (cp == ChessPiece.W_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return color == ChessColor.WHITE && to.getY() == 0;
+			return (color == ChessColor.WHITE) &&
+				   (to.getY() == 0);
 		} else if (cp == ChessPiece.B_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return color == ChessColor.BLACK && to.getY() == (b.getSize() - 1);
+			return (color == ChessColor.BLACK) &&
+				   (to.getY() == (b.getSize() - 1));
 		} else {
 			return false;
 		}

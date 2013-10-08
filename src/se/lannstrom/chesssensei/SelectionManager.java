@@ -189,8 +189,8 @@ public class SelectionManager {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				PromotionPiece p = psv.getSelectedPiece();
-				Log.d("ChessSensei", p.toString());
 				if (p != null) {
+					Log.d("ChessSensei", p.toString());
 					promotion = p;
 					dialog.dismiss();
 				}
