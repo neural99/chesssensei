@@ -110,10 +110,10 @@ public class SelectionManager {
 	private void done() {
 		/* Prompt for a promotion piece if needed */
 		if (isPromotionMove()) {
-			promptForPromotionPiece();
+			promptForPromotionPieceBeforeCallback();
+		} else {
+			doneCallback.selectionDone();
 		}
-
-		doneCallback.selectionDone();
 	}
 
 	public void reset() {
@@ -148,14 +148,20 @@ public class SelectionManager {
 		return m;
 	}
 
+	/**
+	 * Returns true if we should display (x, y) in board coordinates as a
+	 * valid move target
+	 *
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public boolean isValidMove(int x, int y) {
 		return moves[x][y] == 1;
 	}
 
 	/**
 	 * Do we need to prompt for which piece the user wants to promote to?
-	 *
-	 * @return
 	 */
 	private boolean isPromotionMove() {
 		ChessPiece cp = board.getPieceAt(from);
@@ -169,7 +175,7 @@ public class SelectionManager {
 	/**
 	 * Let the use select which piece to promote to
 	 */
-	private void promptForPromotionPiece() {
+	private void promptForPromotionPieceBeforeCallback() {
 		LayoutInflater inflater = (LayoutInflater)
 		boardView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -193,6 +199,8 @@ public class SelectionManager {
 					Log.d("ChessSensei", p.toString());
 					promotion = p;
 					dialog.dismiss();
+
+					doneCallback.selectionDone();
 				}
 			}
 		});

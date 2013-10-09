@@ -140,8 +140,10 @@ public class ChessRuleStrategy {
 	private ChessMove findValidMove(ChessMove move, List<ChessMove> validMoves) {
 		for (int i = 0; i < validMoves.size(); i++) {
 			ChessMove cm = validMoves.get(i);
-			if (cm.isEqualFromAndTo(move))
+			if (cm.isEqualFromAndTo(move)) {
+				cm.setPromotion(move.getPromotion());
 				return cm;
+			}
 		}
 		return null;
 	}
@@ -169,6 +171,10 @@ public class ChessRuleStrategy {
 			executeEnPassantCapture(b, move);
 		} else {
 			executeOrdinaryMove(b, move);
+		}
+
+		if (move.getPromotion() != null) {
+			Log.d("ChessSensei", "execute " + move.getPromotion().toString() + " " + move.toString());
 		}
 
 		if (isPawnPromotionMove(move, b)) {
@@ -396,7 +402,10 @@ public class ChessRuleStrategy {
 		}
 	}
 
-	private boolean containsKingCapture(Board b, ChessColor c, List<ChessMove> opponentMoves) {
+	private boolean containsKingCapture(Board b,
+										ChessColor c,
+										List<ChessMove> opponentMoves) {
+
 		BoardPosition kingPos = b.findKing(c);
 		if (kingPos != null) {
 			for (ChessMove move : opponentMoves) {
@@ -408,7 +417,10 @@ public class ChessRuleStrategy {
 		return false;
 	}
 
-	private List<ChessMove> getMoves(Board b, BoardPosition from, ChessColor c) {
+	private List<ChessMove> getMoves(Board b,
+								     BoardPosition from,
+								     ChessColor c) {
+
 		ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
 		ChessPiece cp = b.getPieceAt(from);
 		if (cp != null && cp.isColor(c)) {
@@ -434,18 +446,15 @@ public class ChessRuleStrategy {
 	}
 
 	private boolean isPawnPromotionMove(ChessMove m, Board b) {
-		BoardPosition from = m.getFrom();
+		/* NB: Move has already been executed at this point */
 		BoardPosition to = m.getTo();
-		ChessColor color = m.getColor();
-		ChessPiece cp = b.getPieceAt(from);
+		ChessPiece cp = b.getPieceAt(to);
 		if (cp == ChessPiece.W_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return (color == ChessColor.WHITE) &&
-				   (to.getY() == 0);
+			return to.getY() == 0;
 		} else if (cp == ChessPiece.B_PAWN) {
 			/* Promotion only allowed if we move to the first rank */
-			return (color == ChessColor.BLACK) &&
-				   (to.getY() == (b.getSize() - 1));
+			return to.getY() == (b.getSize() - 1);
 		} else {
 			return false;
 		}

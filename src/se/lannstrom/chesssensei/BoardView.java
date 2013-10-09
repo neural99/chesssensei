@@ -80,14 +80,11 @@ public class BoardView extends View {
 
 			@Override
 			public void selectionDone() {
-				/* TODO: Animate with property animator */
 				doMove();
 			}
 		});
 		selectionManager.setSelectionState(SelectionState.FROM);
-
 		chessRuleStrategy = new ChessRuleStrategy();
-
 		informActiveColorListeners(board.getActive());
 	}
 

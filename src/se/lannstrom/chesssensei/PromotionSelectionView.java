@@ -1,7 +1,5 @@
 package se.lannstrom.chesssensei;
 
-import java.util.HashMap;
-
 import se.lannstrom.chesssensei.model.Board.ChessColor;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
 import se.lannstrom.chesssensei.model.ChessMove.PromotionPiece;
@@ -31,7 +29,8 @@ public class PromotionSelectionView extends View {
 	/* Which chess color should be displayed? Defaults to WHITE */
 	private ChessColor color = ChessColor.WHITE;
 
-	private HashMap<ChessPiece, Bitmap> images = new HashMap<ChessPiece, Bitmap>();
+	/* Used to store appropriately sized bitmaps of promotion pieces */
+	private Bitmap[] images = new Bitmap[PromotionPiece.values().length];
 
 	private Context context;
 
@@ -88,8 +87,7 @@ public class PromotionSelectionView extends View {
 		rect.top = getTop();
 		rect.bottom = rect.top + diag;
 
-		int i = 0;
-		for (ChessPiece cp : images.keySet()) {
+		for (int i = 0; i < PromotionPiece.values().length; i++) {
 			rect.left = getLeft() + i * (diag + PADDING);
 			rect.right = rect.left + diag;
 
@@ -98,9 +96,8 @@ public class PromotionSelectionView extends View {
 				canvas.drawRect(rect, selectedPaint);
 			}
 
-			Bitmap piece = images.get(cp);
+			Bitmap piece = images[i];
 			canvas.drawBitmap(piece, null, rect, drawPaint);
-			i++;
 		}
 	}
 
@@ -112,46 +109,47 @@ public class PromotionSelectionView extends View {
 		diag = (width / PromotionPiece.values().length) - PADDING;
 
 		/* Setup images for new size */
-		images.clear();
-		for (PromotionPiece pp : PromotionPiece.values()) {
+		for (int i = 0; i < PromotionPiece.values().length; i++) {
+			PromotionPiece pp = PromotionPiece.values()[i];
 			ChessPiece cp = pp.getChessPiece(color);
 			Bitmap scaled = ChessPieceImages.getInstance(context).
 					getScaledChessPiece(cp, diag);
-			images.put(cp, scaled);
+			images[i] = scaled;
 		}
 	}
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-			int desiredWidth = (512 + PADDING) * PromotionPiece.values().length;
+		/* Don't make the chess piece icons larger than 512x512 */
+		int desiredWidth = (512 + PADDING) * PromotionPiece.values().length;
 
-		    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		    int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-		    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		    int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+	    int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+	    int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+	    int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+	    int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-		    int width;
-		    int height;
+	    int width;
+	    int height;
 
-		    if (widthMode == MeasureSpec.EXACTLY) {
-		        width = widthSize;
-		    } else if (widthMode == MeasureSpec.AT_MOST) {
-		        width = Math.min(desiredWidth, widthSize);
-		    } else {
-		        width = desiredWidth;
-		    }
+	    if (widthMode == MeasureSpec.EXACTLY) {
+	        width = widthSize;
+	    } else if (widthMode == MeasureSpec.AT_MOST) {
+	        width = Math.min(desiredWidth, widthSize);
+	    } else {
+	        width = desiredWidth;
+	    }
 
-		    int desiredHeight = (width / PromotionPiece.values().length);
+	    int desiredHeight = (width / PromotionPiece.values().length);
 
-		    if (heightMode == MeasureSpec.EXACTLY) {
-		        height = heightSize;
-		    } else if (heightMode == MeasureSpec.AT_MOST) {
-		        height = Math.min(desiredHeight, heightSize);
-		    } else {
-		        height = desiredHeight;
-		    }
+	    if (heightMode == MeasureSpec.EXACTLY) {
+	        height = heightSize;
+	    } else if (heightMode == MeasureSpec.AT_MOST) {
+	        height = Math.min(desiredHeight, heightSize);
+	    } else {
+	        height = desiredHeight;
+	    }
 
-		    setMeasuredDimension(width, height);
+	    setMeasuredDimension(width, height);
 	}
 
 	public double getRelativeX(MotionEvent e) {
