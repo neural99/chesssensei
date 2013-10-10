@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import android.util.Log;
-
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
@@ -17,8 +15,6 @@ import se.lannstrom.chesssensei.model.ChessMove.PromotionPiece;
 
 /**
  * Knows about how the pieces move in chess
- * @author x1x
- *
  */
 public class ChessRuleStrategy {
 	private HashMap<ChessPiece, ChessPieceStrategy> pieceStrategies =
@@ -118,7 +114,8 @@ public class ChessRuleStrategy {
 	 * @return
 	 */
 	public boolean doMove(Board b, ChessMove move) {
-		List<ChessMove> validMoves = getValidMoves(b, move.getFrom(), move.getColor());
+		List<ChessMove> validMoves = getValidMoves(b, move.getFrom(),
+													  move.getColor());
 		ChessMove realMove = findValidMove(move, validMoves);
 		if (realMove != null) {
 			executeMove(b, realMove);
@@ -173,12 +170,7 @@ public class ChessRuleStrategy {
 			executeOrdinaryMove(b, move);
 		}
 
-		if (move.getPromotion() != null) {
-			Log.d("ChessSensei", "execute " + move.getPromotion().toString() + " " + move.toString());
-		}
-
 		if (isPawnPromotionMove(move, b)) {
-			Log.d("ChessSensei", "isPawnPromotion");
 			promotePawn(move, b);
 		}
 	}
@@ -188,8 +180,6 @@ public class ChessRuleStrategy {
 		BoardPosition to = move.getTo();
 		int targetX = to.getX();
 		int targetY = to.getY() + (-1) * getOrient(move.getColor());
-
-		System.out.println(targetX + "," + targetY);
 
 		b.setEmptyAt(targetX, targetY);
 
@@ -379,8 +369,6 @@ public class ChessRuleStrategy {
 		boolean kingEmpty =  b.isEmptyAt("F" + rank) &&
 				 			 b.isEmptyAt("G" + rank);
 
-		System.out.println(kingEmpty);
-
 		if (Castle.isKingSide(move.getCastling())) {
 			return kingEmpty;
 		} else {
@@ -461,7 +449,6 @@ public class ChessRuleStrategy {
 	}
 
 	private void promotePawn(ChessMove m, Board b) {
-		Log.d("ChessSensei", "promotePawn");
 		BoardPosition to = m.getTo();
 		PromotionPiece pp = m.getPromotion();
 		if (pp != null) {

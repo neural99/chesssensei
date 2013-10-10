@@ -7,9 +7,6 @@ import se.lannstrom.chesssensei.model.Board.ChessPiece;
 /**
  * Represents a single chess move. E.g. RA5
  * Immutable.
- *
- * @author x1x
- *
  */
 public class ChessMove {
 	public enum PromotionPiece {
@@ -53,17 +50,24 @@ public class ChessMove {
 		this.promotion = other.promotion;
 	}
 
-	/* TODO: Set from and to */
 	public ChessMove(Castle c) {
 		castling = c;
 		if (castling == Castle.W_KINGSIDE) {
 			color = ChessColor.WHITE;
+			from  = new BoardPosition("E1");
+			to    = new BoardPosition("G1");
 		} else if (castling == Castle.W_QUEENSIDE) {
 			color = ChessColor.WHITE;
+			from  = new BoardPosition("E1");
+			to    = new BoardPosition("C1");
 		} else if (castling == Castle.B_KINGSIDE) {
 			color = ChessColor.BLACK;
+			from  = new BoardPosition("E8");
+			to    = new BoardPosition("G8");
 		} else if (castling == Castle.B_QUEENSIDE) {
 			color = ChessColor.BLACK;
+			from  = new BoardPosition("E8");
+			to    = new BoardPosition("C8");
 		}
 	}
 

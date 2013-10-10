@@ -82,6 +82,7 @@ public class BoardView extends View {
 			public void selectionDone() {
 				doMove();
 			}
+
 		});
 		selectionManager.setSelectionState(SelectionState.FROM);
 		chessRuleStrategy = new ChessRuleStrategy();
@@ -204,9 +205,8 @@ public class BoardView extends View {
 		/* Draw square background */
 		Paint p = null;
 		BoardPosition from = selectionManager.getFrom();
-		if (from != null &&
-				from.getX() == i &&
-				from.getY() == j) {
+		if (from != null &&	from.getX() == i &&
+							from.getY() == j) {
 			p = fromSelectedPaint;
 		} else if (selectionManager.isValidMove(i, j)) {
 			p = movesPaint;
