@@ -69,7 +69,7 @@ public class ChessRuleStrategy {
 		/* Is it a king at from and it is the starting position */
 		BoardPosition kingPos = Board.getStartingKingPos(c);
 		boolean kingFrom = kingPos.equals(from) && b.isKingAt(from, c);
-
+		
 		if (from == null || kingFrom) {
 			addAvailableCastling(moves, c, b);
 		}
@@ -95,13 +95,15 @@ public class ChessRuleStrategy {
 		if (c == ChessColor.WHITE) {
 			if (available.contains(Castle.W_KINGSIDE)) {
 				validMoves.add(new ChessMove(Castle.W_KINGSIDE));
-			} else if (available.contains(Castle.W_QUEENSIDE)) {
+			}
+			if (available.contains(Castle.W_QUEENSIDE)) {
 				validMoves.add(new ChessMove(Castle.W_QUEENSIDE));
 			}
 		} else {
 			if (available.contains(Castle.B_KINGSIDE)) {
 				validMoves.add(new ChessMove(Castle.B_KINGSIDE));
-			} else if (available.contains(Castle.B_QUEENSIDE)) {
+			}
+			if (available.contains(Castle.B_QUEENSIDE)) {
 				validMoves.add(new ChessMove(Castle.B_QUEENSIDE));
 			}
 		}
@@ -364,7 +366,7 @@ public class ChessRuleStrategy {
 	private boolean isBetweenSquaresEmtpy(Board b, String rank, ChessMove move) {
 		boolean queenEmpty = b.isEmptyAt("B" + rank) &&
 							 b.isEmptyAt("C" + rank) &&
-							 b.isEmptyAt("E" + rank);
+							 b.isEmptyAt("D" + rank);
 
 		boolean kingEmpty =  b.isEmptyAt("F" + rank) &&
 				 			 b.isEmptyAt("G" + rank);
