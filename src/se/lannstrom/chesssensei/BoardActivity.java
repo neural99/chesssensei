@@ -2,6 +2,7 @@ package se.lannstrom.chesssensei;
 
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
+import se.lannstrom.chesssensei.model.Board.GameResult;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -98,6 +99,38 @@ public class BoardActivity extends Activity implements SelectionDoneCallback {
 	@Override
 	public void selectionDone() {
 		boardView.doMove();
+		
+		GameResult gr = boardView.getResult();
+		if (gr != null) {
+			gameOver(gr);
+		}
+	}
+
+	private void gameOver(GameResult gr) {
+		/* TODO: Move this to strings.xml */
+		String msg;
+		if (gr == GameResult.WHITE_WIN) {
+			msg = "White player wins";
+		} else if (gr == GameResult.BLACK_WIN) {
+			msg = "Black player wins";
+		} else {
+			msg = "It is a draw";
+		}
+        new AlertDialog.Builder(this)
+        .setIcon(android.R.drawable.ic_dialog_alert)
+        .setTitle("Game over")
+        .setMessage(msg)
+        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+            	dialog.dismiss();
+            }
+
+        })
+        .show();
+        
+        boardView.disableSelection();
 	}
 
 	@Override

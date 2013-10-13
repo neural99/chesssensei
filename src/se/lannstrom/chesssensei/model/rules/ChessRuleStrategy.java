@@ -8,6 +8,7 @@ import java.util.List;
 import se.lannstrom.chesssensei.model.Board;
 import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
+import se.lannstrom.chesssensei.model.Board.GameResult;
 import se.lannstrom.chesssensei.model.BoardPosition;
 import se.lannstrom.chesssensei.model.ChessMove;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
@@ -461,6 +462,31 @@ public class ChessRuleStrategy {
 
 	private void register(ChessPiece cp, ChessPieceStrategy s) {
 		pieceStrategies.put(cp, s);
+	}
+
+	/**
+	 * TODO: Implement draw
+	 * 
+	 * @param b
+	 * @return
+	 */
+	public GameResult getResults(Board b) {
+		ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+		ChessColor c = b.getActive();
+		for (int i = 0; i < b.getSize(); i++) {
+			for (int j = 0; j < b.getSize(); j++) {
+				BoardPosition from = 
+						new BoardPosition(i, j); 
+				moves.addAll(getValidMoves(b, from, c));
+			}
+		}
+		
+		if (moves.size() == 0) {
+			return GameResult.
+					winner(ChessColor.getOpponent(c));
+		}
+		
+		return null;
 	}
 
 }

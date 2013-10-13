@@ -39,6 +39,8 @@ public class SelectionManager {
 
 	private SelectionDoneCallback doneCallback;
 
+	private boolean disabled;
+
 	public SelectionManager(BoardView bv, ChessColor col, Board board) {
 		boardView = bv;
 		color = col;
@@ -82,6 +84,9 @@ public class SelectionManager {
 	}
 
 	public void select(int x, int y) {
+		if (disabled)
+			return;
+		
 		if (selectionState == SelectionState.FROM) {
 			selectFrom(x, y);
 		} else if (selectionState == SelectionState.TO) {
@@ -206,5 +211,10 @@ public class SelectionManager {
 		});
 
 		builder.create().show();
+	}
+
+	public void disableSelection() {
+		disabled = true;
+		zeroMoves();
 	}
 }

@@ -108,6 +108,18 @@ public class Board implements Parcelable {
 		}
 	}
 	
+	public static enum GameResult {
+		WHITE_WIN, BLACK_WIN, DRAW;
+		
+		public static GameResult winner(ChessColor c) {
+			if (c == ChessColor.BLACK) {
+				return BLACK_WIN;
+			} else {
+				return WHITE_WIN;
+			}
+		}
+	}
+	
 	private int size = 8;
 	private ChessPiece[][] board;
 	private ChessColor active;

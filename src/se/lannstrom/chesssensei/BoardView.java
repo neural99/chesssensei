@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import se.lannstrom.chesssensei.SelectionManager.SelectionState;
 import se.lannstrom.chesssensei.model.Board;
-import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
 import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy;
@@ -17,8 +16,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -242,6 +239,20 @@ public class BoardView extends View {
 			inverted = true;
 		}
 		invalidate();
+	}
+	
+	/**
+	 * @return a GameResult if the game is over, null otherwise.
+	 */
+	public Board.GameResult getResult() {
+		return chessRuleStrategy.getResults(board);
+	}
+
+	/**
+	 * Don't allow selections anymore
+	 */
+	public void disableSelection() {
+		selectionManager.disableSelection();
 	}
 
 }
