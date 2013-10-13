@@ -12,5 +12,10 @@
     <string name="black_player">Black</string>
     <string name="active_player">Player:</string>
     <string name="active_player_content">Player: White</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="quit">End game?</string>
+    <string name="really_quit">Are you sure you want to end the game?</string>
+    <string name="action_quit">End game</string>
     
 </resources>

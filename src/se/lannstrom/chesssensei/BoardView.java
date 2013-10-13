@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import se.lannstrom.chesssensei.SelectionManager.SelectionState;
 import se.lannstrom.chesssensei.model.Board;
+import se.lannstrom.chesssensei.model.Board.Castle;
 import se.lannstrom.chesssensei.model.Board.ChessColor;
 import se.lannstrom.chesssensei.model.Board.ChessPiece;
 import se.lannstrom.chesssensei.model.rules.ChessRuleStrategy;
@@ -16,6 +17,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -76,17 +79,13 @@ public class BoardView extends View {
 		board = Board.createStartingBoard();
 
 		selectionManager = new SelectionManager(this, ChessColor.WHITE, board);
-		selectionManager.setDoneCallback(new SelectionDoneCallback() {
-
-			@Override
-			public void selectionDone() {
-				doMove();
-			}
-
-		});
 		selectionManager.setSelectionState(SelectionState.FROM);
 		chessRuleStrategy = new ChessRuleStrategy();
 		informActiveColorListeners(board.getActive());
+	}
+	
+	public SelectionManager getSelectionManager() {
+		return selectionManager;
 	}
 
 	public void addActiveColorChangeListener(ActiveColorChangeListener l) {
@@ -99,10 +98,7 @@ public class BoardView extends View {
 		}
 	}
 
-	/**
-	 * Callback from SelectionManager when the user is done inputting a move
-	 */
-	protected void doMove() {
+	public void doMove() {
 		ChessMove move = selectionManager.buildMove();
 		chessRuleStrategy.doMove(board, move);
 		selectionManager.reset();

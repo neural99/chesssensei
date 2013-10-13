@@ -10,11 +10,9 @@
           android:icon="@drawable/action_about"
           android:title="@string/action_about"/>
     
-    <item android:id="@+id/action_help"
-          android:showAsAction="ifRoom"
-          android:icon="@drawable/action_help"
-          android:title="@string/action_help" />
-    
-
+    <item android:id="@+id/action_quit"
+          android:showAsAction="never"
+          android:onClick="endGame"
+          android:title="@string/action_quit" />
         
  </menu>

@@ -3,6 +3,9 @@ package se.lannstrom.chesssensei.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Represents a single instance of the board in chess.
  * 
@@ -12,10 +15,10 @@ import java.util.Arrays;
  * @author x1x
  *
  */
-public class Board {
+public class Board implements Parcelable {
 	public static enum ChessPiece {
-		W_PAWN("♙"), W_BISHOP("♗"), W_KNIGHT("♘"), W_ROOK("♖"), W_QUEEN("♕"), W_KING("♔"),
-		B_PAWN("♟"), B_BISHOP("♝"), B_KNIGHT("♞"), B_ROOK("♜"), B_QUEEN("♛"), B_KING("♚");
+		W_PAWN("â™™"), W_BISHOP("â™—"), W_KNIGHT("â™˜"), W_ROOK("â™–"), W_QUEEN("â™•"), W_KING("â™”"),
+		B_PAWN("â™Ÿ"), B_BISHOP("â™�"), B_KNIGHT("â™ž"), B_ROOK("â™œ"), B_QUEEN("â™›"), B_KING("â™š");
 		
 		String text;
 		ChessPiece(String t) {
@@ -461,5 +464,52 @@ public class Board {
 	public void setEmptyAt(BoardPosition bp) {
 		setEmptyAt(bp.getX(), bp.getY());
 	}
+
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+
+	@Override
+	public void writeToParcel(Parcel out, int flags) {
+		out.writeInt(size);
+		for (int i = 0; i < 8; i++) {
+			out.writeArray(board[i]);
+		}
+		out.writeSerializable(active);
+		out.writeList(availableCastle);
+		if (enPassantTarget != null) {
+			out.writeString(enPassantTarget.toString());
+		} else {
+			out.writeString("");
+		}
+		out.writeInt(halfMoveCount);
+		out.writeInt(fullMoveCount);
+	}
+
+	public static final Parcelable.Creator<Board> CREATOR = new Parcelable.Creator<Board>() {
+		public Board createFromParcel(Parcel in) {
+			return new Board(in);
+		}
+
+		public Board[] newArray(int size) {
+			return new Board[size];
+		}
+	};
+	
+    private Board(Parcel in) {
+    	size = in.readInt();
+    	for (int i = 0; i < 8; i++) {
+    		board[i] = (ChessPiece[]) in.readArray(null);
+    	}
+    	active = (ChessColor) in.readSerializable();
+    	in.readList(availableCastle, null);
+    	String target = in.readString();
+    	if (!target.equals("")) {
+    		enPassantTarget = new BoardPosition(target);
+    	}
+    	halfMoveCount = in.readInt();
+    	fullMoveCount = in.readInt();
+    }
 
 }
