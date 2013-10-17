@@ -524,4 +524,12 @@ public class Board implements Parcelable {
     	fullMoveCount = in.readInt();
     }
 
+	public void increaseHalfMoveCount() {
+		halfMoveCount++;
+	}
+
+	public void resetHalfMoveCount() {
+		halfMoveCount = 0;
+	}
+
 }

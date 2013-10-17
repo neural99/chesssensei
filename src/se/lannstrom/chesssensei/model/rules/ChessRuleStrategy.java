@@ -155,18 +155,31 @@ public class ChessRuleStrategy {
 	 * @param move
 	 */
 	private void executeMove(Board b, ChessMove move) {
-		/* TODO: Update all status in board */
-
+		boolean reset = false;
+		
 		if (move.isCastle()) {
 			executeCastle(b, move);
 		} else {
-			executeSingleMove(b, move);
+			reset = executeSingleMove(b, move);
+		}
+		
+		/* Should we reset or increase the half move count? */
+		if (reset) {
+			b.resetHalfMoveCount();
+		} else {
+			b.increaseHalfMoveCount();
 		}
 
 		b.toggleActive();
 	}
 
-	private void executeSingleMove(Board b, ChessMove move) {
+	private boolean executeSingleMove(Board b, ChessMove move) {
+		boolean resetHalfMoveCount = false;
+		
+		if (isPawnMoveOrCapture(b, move)) {
+			resetHalfMoveCount = true;
+		}
+		
 		if (move.isEnPassant()) {
 			executeEnPassantCapture(b, move);
 		} else {
@@ -176,6 +189,19 @@ public class ChessRuleStrategy {
 		if (isPawnPromotionMove(move, b)) {
 			promotePawn(move, b);
 		}
+		
+		return resetHalfMoveCount;
+	}
+
+	private boolean isPawnMoveOrCapture(Board b, ChessMove move) {
+		/* NB: Before the move is executed */
+		BoardPosition from = move.getFrom();
+		BoardPosition to = move.getTo();
+		
+		ChessPiece fromCp = b.getPieceAt(from);
+		
+		return fromCp == ChessPiece.W_PAWN || fromCp == ChessPiece.B_PAWN ||
+			   !b.isEmptyAt(to);
 	}
 
 	private void executeEnPassantCapture(Board b, ChessMove move) {
@@ -465,7 +491,7 @@ public class ChessRuleStrategy {
 	}
 
 	/**
-	 * TODO: Implement draw
+	 * Check if the game is over. Returns null if there is no outcome yet. 
 	 * 
 	 * @param b
 	 * @return
@@ -484,6 +510,11 @@ public class ChessRuleStrategy {
 		if (moves.size() == 0) {
 			return GameResult.
 					winner(ChessColor.getOpponent(c));
+		}
+		
+		/* 50 moves rule */
+		if (b.getHalfMoveCount() == 100) {
+			return GameResult.DRAW;
 		}
 		
 		return null;
