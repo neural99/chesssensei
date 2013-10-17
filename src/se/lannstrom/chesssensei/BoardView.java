@@ -108,11 +108,11 @@ public class BoardView extends View {
 	}
 
 	public double getRelativeX(MotionEvent e) {
-		return e.getX() - getLeft();
+		return e.getX() - getPaddingLeft();
 	}
 
 	public double getRelativeY(MotionEvent e) {
-		return e.getY() - getTop();
+		return e.getY() - getPaddingTop();
 	}
 
 	public void tapped(MotionEvent e) {
@@ -152,6 +152,12 @@ public class BoardView extends View {
 		squareDiag = Math.min(squareWidth, squareHeight);
 		scaleBitmaps(squareDiag);
 	}
+	
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int dim = Math.min(widthMeasureSpec, heightMeasureSpec);
+		super.onMeasure(dim, dim);
+	}
 
 	/**
 	 * Scale the images of the chess pieces so they fit in the new square size
@@ -185,9 +191,9 @@ public class BoardView extends View {
 	 * @param j
 	 */
 	private void drawSquare(Canvas canvas, int i, int j) {
-		rect.left = getLeft() + i * squareDiag;
+		rect.left = getPaddingLeft() + i * squareDiag;
 		rect.right = rect.left + squareDiag;
-		rect.top = getTop() + j * squareDiag;
+		rect.top = getPaddingTop() + j * squareDiag;
 		rect.bottom = rect.top + squareDiag;
 
 		/* Logic for handling flipping the screen */
