@@ -32,40 +32,40 @@ public class ChessPieceImages {
 	private void loadChessPieceImages(Context c) {
 		Bitmap tmp = null;
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.bking);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.bking);
 		bigBitmaps.put(ChessPiece.B_KING, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wking);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wking);
 		bigBitmaps.put(ChessPiece.W_KING, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.bqueen);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.bqueen);
 		bigBitmaps.put(ChessPiece.B_QUEEN, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wqueen);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wqueen);
 		bigBitmaps.put(ChessPiece.W_QUEEN, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.brook);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.brook);
 		bigBitmaps.put(ChessPiece.B_ROOK, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wrook);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wrook);
 		bigBitmaps.put(ChessPiece.W_ROOK, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.bbishop);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.bbishop);
 		bigBitmaps.put(ChessPiece.B_BISHOP, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wbishop);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wbishop);
 		bigBitmaps.put(ChessPiece.W_BISHOP, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.bknight);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.bknight);
 		bigBitmaps.put(ChessPiece.B_KNIGHT, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wknight);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wknight);
 		bigBitmaps.put(ChessPiece.W_KNIGHT, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.bpawn);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.bpawn);
 		bigBitmaps.put(ChessPiece.B_PAWN, tmp);
 
-		tmp = BitmapFactory.decodeResource(c.getResources(), R.raw.wpawn);
+		tmp = BitmapFactory.decodeResource(c.getResources(), R.drawable.wpawn);
 		bigBitmaps.put(ChessPiece.W_PAWN, tmp);
 	}
 
