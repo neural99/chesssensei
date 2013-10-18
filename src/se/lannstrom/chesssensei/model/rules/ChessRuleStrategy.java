@@ -157,6 +157,15 @@ public class ChessRuleStrategy {
 	private void executeMove(Board b, ChessMove move) {
 		boolean reset = false;
 		
+		/* 
+		 * Reset enPassant target. En passant move must come directly after double 
+		 * pawn move. If move is a double pawn move, then enPassantTarget is set in
+		 * the next function call.
+		 */
+		if (!move.isEnPassant()) {
+			b.setEnPassantTarget(null);
+		}
+		
 		if (move.isCastle()) {
 			executeCastle(b, move);
 		} else {
